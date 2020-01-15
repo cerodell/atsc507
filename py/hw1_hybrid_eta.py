@@ -70,32 +70,40 @@ P_final = np.stack(P_list)
 # %%
 %matplotlib
 
+
+
+## Set up Figure for plotting multiple variable on one graph
 fig, ax = plt.subplots(1,1, figsize=(10,5))
 fig.suptitle('Eta something...', fontsize= plt_set.title_size, fontweight="bold")
-
 divider = make_axes_locatable(ax)
 cax = divider.append_axes("right", size="5%", pad=0.05)
 
 def confil(var):
+    """ 
+    This funstion set up the extent for you color bar
+    """
     v = np.linspace(0,105,56)
     Cnorm = colors.Normalize(vmin= np.min(var), vmax =np.max(var))
     return v, Cnorm
 
-v, Cnorm = confil(P_final)
-v_line = [2,5,10,20,30,40,50,60,70,80,90,100]
+## Plot mnt
 ax.fill_between(x,0, z_surf, color = 'saddlebrown', zorder = 4)
+
+## Plot isobars
+v_line = [2,5,10,20,30,40,50,60,70,80,90,100]
 CS = ax.contour(xx, zz, P_final, levels = v_line, colors = 'black', zorder = 10)
 ax.clabel(CS, fmt = '%2.1d', colors = 'k', fontsize=14) #contour line labels
 
-
-
+## contour pressure feild
+v, Cnorm = confil(P_final)
 C = ax.contourf(xx, zz, P_final, cmap = 'coolwarm', norm = Cnorm, levels = v, zorder = 1)
 clb = plt.colorbar(C,cax=cax, extend='both')
-
 clb.set_label('Pressure kPa', fontsize = plt_set.label)
 clb.ax.tick_params(labelsize= plt_set.tick_size) 
 clb.set_alpha(.95)
 clb.draw_all()
+
+
 
 # divider = make_axes_locatable(ax)
 # cax = divider.append_axes("right", size="5%", pad=0.05)
