@@ -39,25 +39,9 @@ T = np.where(zz < 12, T_trop, T_iso)
 T = T + 273.15
 T = np.vstack((T, T[-1,:]))
 
-# T_avg = []
-# for i in range(len(z)):
-#     T_avg_i = (T[i,:]+T[i+1,:])/2.
-#     T_avg.append(T_avg_i)
-# T_avg = np.stack(T_avg)
-
 # %%
 ## Solve for pressure across the surface (x) of the domain (ie z = 0)
 P_slp = 95 + 0.01 * x
-
-# def pressure(P_1,T):
-
-#     if P_1[0] == P_slp[0]:
-#         return P_slp
-#     else:
-#         P_2 = P_1 * np.exp((-dz)/(a*T))
-#         return P_2
-
-
 
 def pressure(P_1,T):
     P_2 = P_1 * np.exp((-dz)/(a*T))
