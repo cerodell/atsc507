@@ -68,24 +68,41 @@ P_final = np.stack(P_list)
 
 
 # %%
-# %matplotlib
+%matplotlib
 
 fig, ax = plt.subplots(1,1, figsize=(10,5))
 fig.suptitle('Eta something...', fontsize= plt_set.title_size, fontweight="bold")
 
-
-v = np.linspace(np.min(T),np.max(T),41)
-Cnorm = colors.Normalize(vmin= np.min(T), vmax =np.max(T))
-
-ax.fill_between(x,0, z_surf, color = 'brown', zorder = 10)
-
 divider = make_axes_locatable(ax)
 cax = divider.append_axes("right", size="5%", pad=0.05)
-C = ax.contourf(xx, zz, T, cmap = 'coolwarm', norm = Cnorm, levels = v)
-clb = plt.colorbar(C,cax=cax)
 
-# clb.set_label('Relative Humidity Gradient \n(%)', fontsize =ylabel)
-# clb.ax.tick_params(labelsize=tick_size) 
+def confil(var):
+    v = np.linspace(0,105,56)
+    Cnorm = colors.Normalize(vmin= np.min(var), vmax =np.max(var))
+    return v, Cnorm
+
+v, Cnorm = confil(P_final)
+v_line = [2,5,10,20,30,40,50,60,70,80,90,100]
+ax.fill_between(x,0, z_surf, color = 'saddlebrown', zorder = 4)
+CS = ax.contour(xx, zz, P_final, levels = v_line, colors = 'black', zorder = 10)
+ax.clabel(CS, fmt = '%2.1d', colors = 'k', fontsize=14) #contour line labels
+
+
+
+C = ax.contourf(xx, zz, P_final, cmap = 'coolwarm', norm = Cnorm, levels = v, zorder = 1)
+clb = plt.colorbar(C,cax=cax, extend='both')
+
+clb.set_label('Pressure kPa', fontsize = plt_set.label)
+clb.ax.tick_params(labelsize= plt_set.tick_size) 
+clb.set_alpha(.95)
+clb.draw_all()
+
+# divider = make_axes_locatable(ax)
+# cax = divider.append_axes("right", size="5%", pad=0.05)
+# C = ax.contourf(xx, zz, T, cmap = 'coolwarm', norm = Cnorm, levels = v)
+# clb = plt.colorbar(C,cax=cax, extend='both')
+# clb.set_label('Pressure kPa', fontsize = plt_set.label)
+# clb.ax.tick_params(labelsize= plt_set.tick_size) 
 # clb.set_alpha(.95)
 # clb.draw_all()
 
