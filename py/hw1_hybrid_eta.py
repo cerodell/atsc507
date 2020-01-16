@@ -1,6 +1,10 @@
+# %% [markdown]
+
+
 # %%
 import context
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors 
 from cr507.utils import plt_set
@@ -25,7 +29,11 @@ xx, zz = np.meshgrid(x, z)
 ## create mnt range on surface of domain
 z_si = 1 + np.cos(2.*(3.14159)*(x-500.) / 500.)
 ## apply condtion for mnt location
-z_surf = np.where((250 < x) & (x < 750), z_si, 0 )
+z_ground = np.where((250 < x) & (x < 750), z_si, 0 )
+
+# %% [markdown]
+
+
 
 # %%
 
@@ -39,9 +47,15 @@ T = np.where(zz < 12, T_trop, T_iso)
 T = T + 273.15
 T = np.vstack((T, T[-1,:]))
 
+
+
+# %% [markdown]
+
+
+
 # %%
 ## Solve for pressure across the surface (x) of the domain (ie z = 0)
-P_slp = 95 + 0.01 * x
+P_1 = 95 + 0.01 * x
 
 def pressure(P_1,T):
     P_2 = P_1 * np.exp((-dz)/(a*T))
@@ -49,11 +63,12 @@ def pressure(P_1,T):
 
 P_list, T_avg = [], []
 for i in range(len(z)):
-    P_list.append(P_slp)
+    P_list.append(P_1)
     T_avg_i = (T[i,:]+T[i+1,:])/2.
     T_avg.append(T_avg_i)
-    P_2 = pressure(P_slp,T_avg_i)
-    P_slp = P_2
+    # zz = np.vstack((zz,zz[-1,:]))
+    P_2 = pressure(P_1,T_avg_i)
+    P_1 = P_2
 
 
 
@@ -61,10 +76,7 @@ for i in range(len(z)):
 T_avg = np.stack(T_avg)
 P_final = np.stack(P_list)
 
-# %%
-
-
-
+# %% [markdown]
 
 
 # %%
@@ -87,7 +99,7 @@ def confil(var):
     return v, Cnorm
 
 ## Plot mnt
-ax.fill_between(x,0, z_surf, color = 'saddlebrown', zorder = 4)
+ax.fill_between(x,0, z_ground, color = 'saddlebrown', zorder = 4)
 
 ## Plot isobars
 v_line = [2,5,10,20,30,40,50,60,70,80,90,100]
@@ -123,4 +135,42 @@ clb.draw_all()
 #ax.legend(loc='best')
    
 
+
+# %% [markdown]
+
+# Solve for Surface Pressure at gorund level
+
+
 # %%
+
+
+
+P_2 = P_final[0,:] * np.exp((zz[0,:]-z_ground)/(a*T_avg[0,:]))
+
+values = {'x(km)': x, 'Zground(km)': z_ground, 'Psfc(kPa)':P_2}
+
+pd = pd.DataFrame(values, columns = ['x(km)', 'Zground(km)', 'Psfc(kPa)'])
+
+pd
+
+# %% [markdown]
+
+# Solve for Eta using the equations from WRFv4 Tech Notes
+
+
+
+
+
+# %%
+
+# P_d = B(eta)(P_surf-P_top) + (eta-B(eta))8(P_0 - P-top) + P_top
+
+
+
+
+
+
+
+
+
+
