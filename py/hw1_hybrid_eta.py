@@ -149,9 +149,13 @@ P_2 = P_final[0,:] * np.exp((zz[0,:]-z_ground)/(a*T_avg[0,:]))
 
 values = {'x(km)': x, 'Zground(km)': z_ground, 'Psfc(kPa)':P_2}
 
-pd = pd.DataFrame(values, columns = ['x(km)', 'Zground(km)', 'Psfc(kPa)'])
+df = pd.DataFrame(values, columns = ['x(km)', 'Zground(km)', 'Psfc(kPa)'])
 
-pd
+save = str(context.data_dir)  + '/Q2_Table.csv'
+
+df.to_csv(save)
+# str(context.data_dir)
+# df
 
 # %% [markdown]
 
