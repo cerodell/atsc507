@@ -1,6 +1,7 @@
 # My folders
 
-data
+data/
+*.csv
 
 
 # Byte-compiled / optimized / DLL files
