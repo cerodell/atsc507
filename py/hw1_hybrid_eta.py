@@ -167,7 +167,25 @@ df.to_csv(save)
 
 # %%
 
-# P_d = B(eta)(P_surf-P_top) + (eta-B(eta))8(P_0 - P-top) + P_top
+P_top = 2 ## kPa
+
+eta_c = np.full(13,0.3)
+
+c1 = (2*eta_c**2)/((1 - eta_c)**3)
+
+c2 = -eta_c*(4 + eta_c + eta_c**2)/(1- eta_c)**3
+
+c3 = 2*(1+ eta_c + eta_c**2)/(1- eta_c)**3
+
+c4 = -(1 + eta_c)/(1- eta_c)**3
+
+eta = np.array([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.95,1])
+
+B_eta = c1 =c2*eta + c3*eta**2 +c4*eta**3
+
+B_eta_f = np.where(eta>eta_c,B_eta,0)
+
+# P_d = B_eta*(P_surf-P_top) + (eta-B_eta)*(P_0 - P_top) + P_top
 
 
 
@@ -178,3 +196,5 @@ df.to_csv(save)
 
 
 
+
+# %%
