@@ -145,9 +145,9 @@ clb.draw_all()
 
 
 
-P_2 = P_final[0,:] * np.exp((zz[0,:]-z_ground)/(a*T_avg[0,:]))
+P_surf = P_final[0,:] * np.exp((zz[0,:]-z_ground)/(a*T_avg[0,:]))
 
-values = {'x(km)': x, 'Zground(km)': z_ground, 'Psfc(kPa)':P_2}
+values = {'x(km)': x, 'Zground(km)': z_ground, 'Psfc(kPa)':P_surf}
 
 df = pd.DataFrame(values, columns = ['x(km)', 'Zground(km)', 'Psfc(kPa)'])
 
@@ -168,7 +168,7 @@ df.to_csv(save)
 # %%
 
 P_top = 2 ## kPa
-
+P_0 = 100 ## kPa
 eta_c = np.full(13,0.3)
 
 c1 = (2*eta_c**2)/((1 - eta_c)**3)
@@ -185,16 +185,78 @@ B_eta = c1 =c2*eta + c3*eta**2 +c4*eta**3
 
 B_eta_f = np.where(eta>eta_c,B_eta,0)
 
-# P_d = B_eta*(P_surf-P_top) + (eta-B_eta)*(P_0 - P_top) + P_top
+
+P_d_final = []
+for i in range(len(B_eta_f)):
+    P_d = B_eta[i]*(P_surf-P_top) + (eta[i]-B_eta[i])*(P_0 - P_top) + P_top
+    P_d_final.append(P_d)
+
+
+P_d_final = np.stack(P_d_final)
+## Invert P_d_final to have z order the same as all other arrays
+P_d_final = P_d_final[::-1,:]
 
 
 
 
+# %%
+
+%matplotlib
 
 
 
+## Set up Figure for plotting multiple variable on one graph
+fig, ax = plt.subplots(1,1, figsize=(10,5))
+fig.suptitle('Eta something...', fontsize= plt_set.title_size, fontweight="bold")
+# divider = make_axes_locatable(ax)
+# cax = divider.append_axes("right", size="5%", pad=0.05)
+
+def confil(var):
+    """ 
+    This funstion set up the extent for you color bar
+    """
+    v = np.linspace(0,105,56)
+    Cnorm = colors.Normalize(vmin= np.min(var), vmax =np.max(var))
+    return v, Cnorm
+
+## Plot mnt
+ax.fill_between(x,0, z_ground, color = 'saddlebrown', zorder = 4)
+
+ax.plot(P_d_final.T)
+
+## Plot isobars
+# v_line = [2,5,10,20,30,40,50,60,70,80,90,100]
+# CS = ax.contour(x, zz, P_final, levels = v_line, colors = 'black', zorder = 10)
+# ax.clabel(CS, fmt = '%2.1d', colors = 'k', fontsize=14) #contour line labels
+
+# ## contour pressure feild
+# v, Cnorm = confil(P_final)
+# C = ax.contourf(xx, zz, P_final, cmap = 'coolwarm', norm = Cnorm, levels = v, zorder = 1)
+# clb = plt.colorbar(C,cax=cax, extend='both')
+# clb.set_label('Pressure kPa', fontsize = plt_set.label)
+# clb.ax.tick_params(labelsize= plt_set.tick_size) 
+# clb.set_alpha(.95)
+# clb.draw_all()
 
 
+
+# divider = make_axes_locatable(ax)
+# cax = divider.append_axes("right", size="5%", pad=0.05)
+# C = ax.contourf(xx, zz, T, cmap = 'coolwarm', norm = Cnorm, levels = v)
+# clb = plt.colorbar(C,cax=cax, extend='both')
+# clb.set_label('Pressure kPa', fontsize = plt_set.label)
+# clb.ax.tick_params(labelsize= plt_set.tick_size) 
+# clb.set_alpha(.95)
+# clb.draw_all()
+
+#ax.set_xlabel("Wind Speed $(ms^-1)$", fontsize= plt_set.label)
+#ax.set_ylabel("Height Above Ground Level  \n (AGL)", fontsize= plt_set.label)
+#ax.tick_params(axis='both', which='major', labelsize= plt_set.tick_size)
+#ax.xaxis.grid(color='gray', linestyle='dashed')
+#ax.yaxis.grid(color='gray', linestyle='dashed')
+#ax.set_facecolor('lightgrey')
+#ax.legend(loc='best')
+   
 
 
 # %%
