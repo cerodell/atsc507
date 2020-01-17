@@ -80,7 +80,7 @@ P_final = np.stack(P_list)
 
 
 # %%
-%matplotlib
+# %matplotlib
 
 
 
