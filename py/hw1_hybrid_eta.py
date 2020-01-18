@@ -169,7 +169,9 @@ df.to_csv(save)
 
 P_top = 2 ## kPa
 P_0 = 100 ## kPa
-eta_c = np.full(13,0.3)
+eta_c = np.full(len(z),0.3)
+
+eta = np.linspace(0, 1, num=len(z))
 
 c1 = (2*eta_c**2)/((1 - eta_c)**3)
 
@@ -179,9 +181,9 @@ c3 = 2*(1+ eta_c + eta_c**2)/(1- eta_c)**3
 
 c4 = -(1 + eta_c)/(1- eta_c)**3
 
-eta = np.array([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.95,1])
+# eta = np.array([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.95,1])
 
-B_eta = c1 =c2*eta + c3*eta**2 +c4*eta**3
+B_eta = c1 + c2*eta + c3*eta**2 +c4*eta**3
 
 B_eta_f = np.where(eta>eta_c,B_eta,0)
 
@@ -196,7 +198,10 @@ P_d_final = np.stack(P_d_final)
 ## Invert P_d_final to have z order the same as all other arrays
 P_d_final = P_d_final[::-1,:]
 
+# %%
 
+%matplotlib
+plt.plot(eta)
 
 
 # %%
@@ -222,11 +227,13 @@ def confil(var):
 ## Plot mnt
 ax.fill_between(x,0, z_ground, color = 'saddlebrown', zorder = 4)
 
-ax.plot(P_d_final.T)
+
 
 ## Plot isobars
-# v_line = [2,5,10,20,30,40,50,60,70,80,90,100]
-# CS = ax.contour(x, zz, P_final, levels = v_line, colors = 'black', zorder = 10)
+v_line = [2,5,10,20,30,40,50,60,70,80,90,100]
+# v_line = np.array([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.95,1])
+
+CS = ax.contour(xx, zz, P_d_final, levels = v_line, colors = 'black', zorder = 10)
 # ax.clabel(CS, fmt = '%2.1d', colors = 'k', fontsize=14) #contour line labels
 
 # ## contour pressure feild
