@@ -206,7 +206,7 @@ plt.plot(eta)
 
 # %%
 
-%matplotlib
+# %matplotlib
 
 
 
