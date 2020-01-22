@@ -3,6 +3,17 @@
 # ## ATSC 507 Homework 1   -   Hybrid-Eta Exercise 
 # ### Chris Rodell
 
+# Throught out the hw set we will be making using of the hypsometric equation as define by:
+# $$
+# z_{2}-z_{1} \approx a \overline{T_{v}} \cdot \ln \left(\frac{P_{1}}{P_{2}}\right)
+# $$
+
+# &
+
+# $$
+# P_{2}=P_{1} \cdot \exp \left(\frac{z_{1}-z_{2}}{a \cdot \overline{T_{v}}}\right)
+# $$
+# *Note we are not using virtual potential temperature*
 # %%
 import context
 import numpy as np
@@ -12,8 +23,8 @@ import matplotlib.colors as colors
 from cr507.utils import plt_set
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
-%matplotlib
-
+# %matplotlib
+#
 # %%
 
 ## Constants
@@ -63,6 +74,9 @@ T = np.vstack((T, T[-1,:]))
 P_1 = 95 + 0.01 * x
 
 def pressure(P_1,T):
+    """
+    The hypsometric equation  
+    """
     P_2 = P_1 * np.exp((-dz)/(a*T))
     return P_2
 
@@ -71,7 +85,6 @@ for i in range(len(z)):
     P_list.append(P_1)
     T_avg_i = (T[i,:]+T[i+1,:])/2.
     T_avg.append(T_avg_i)
-    # zz = np.vstack((zz,zz[-1,:]))
     P_2 = pressure(P_1,T_avg_i)
     P_1 = P_2
 
@@ -88,8 +101,6 @@ P_msl = np.stack(P_list)
 # On the same plot, plot the altitude of Zground. 
 
 # %%
-
-
 
 ## Set up Figure for plotting multiple variable on one graph
 fig, ax = plt.subplots(1,1, figsize=(10,5))
@@ -192,13 +203,14 @@ df
 
 
 # %%
+## Solve for pressure based on eq in WRF Tech Notes and information provided in hw
 
 P_top = 2 ## kPa
 P_0 = 100 ## kPa
 eta_c = 0.3
 eta = np.linspace(0, 1, num=len(z))
-eta = eta[::-1]
 # eta = np.array([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.95,1])
+eta = eta[::-1]
 
 c1 = (2*eta_c**2)/((1 - eta_c)**3)
 
@@ -214,93 +226,65 @@ B_eta = c1 + c2*eta + c3*eta**2 +c4*eta**3
 B_eta_final = np.where(eta>eta_c,B_eta,0)
 
 P_d_final = []
-for i in range(len(B_eta_f)):
+for i in range(len(B_eta_final)):
     P_d = B_eta_final[i]*(P_surf-P_top) + (eta[i]-B_eta_final[i])*(P_0 - P_top) + P_top
     P_d_final.append(P_d)
 
 ## Stack list or array to 2D array
 P_d_final = np.stack(P_d_final)
-# P_d_final = P_d_final[::-1,:]
-
-# %%
-
-eta_2D = (P_d_final - P_top) / (P_surf - P_top)
-eta_2D = np.where(eta_2D>eta_c,eta_2D,0)
 
 
 # %%
-# fig, ax = plt.subplots(1,1, figsize=(10,5))
-# ax.contourf(xx, zz, eta_2D)
-
-
-## Set up Figure for plotting multiple variable on one graph
+## Set up Figure for plotting P-x graph with lines of constant eta
 fig, ax = plt.subplots(1,1, figsize=(10,5))
-fig.suptitle('Pressure (kPa) at height (km)', fontsize= plt_set.title_size, fontweight="bold")
-divider = make_axes_locatable(ax)
-cax = divider.append_axes("right", size="5%", pad=0.05)
+fig.suptitle('Constant Eta at Pressure (kPa)', fontsize= plt_set.title_size, fontweight="bold")
 
-def confil(var):
-    """ 
-    This funstion set up the extent for you color bar
-    """
-    v = np.linspace(0,105,56)
-    Cnorm = colors.Normalize(vmin= np.min(var), vmax =np.max(var))
-    return v, Cnorm
+P_d_final_short = P_d_final[::2,:]
+for i in range(len(P_d_final_short[:,0])):
+    ax.plot(x,P_d_final_short[i,:])
+plt.gca().invert_yaxis()
+ax.set(xlabel='Horizonatal distance (km)',ylabel='Pressure (kPa)')
 
-## Plot mnt
+# ax.fill_between(x,0, z_ground, color = 'saddlebrown', zorder = 4)
+
+
+# %% [markdown]
+
+# ### Question 4)
+# Create a new z-x graph, on which you plot the z altitudes of the constant eta
+# lines for the same eta values as in part (3) above. Make use of the hypsometric eq
+# to find the heights z at the pressure levels that correspond to the requested eta values.
+
+
+# %%
+
+# Solve for height values of the associated pressure values calculated in question 3
+z_1 = z_ground
+
+P_d_final = np.vstack((P_d_final, P_d_final[-1,:]))
+
+z_list =[]
+for i in range(len(z+1)):
+    z_list.append(z_1)
+    z_2 = (a*T_avg[i,:])*np.log(P_d_final[i,:]/P_d_final[i+1,:])+z_1
+    z_1 = z_2
+
+z_heights = np.stack(z_list)
+
+# %%
+
+## Set up Figure for plotting P-x graph with lines of constant eta
+fig, ax = plt.subplots(1,1, figsize=(10,5))
+fig.suptitle('Constant Eta at height (km)', fontsize= plt_set.title_size, fontweight="bold")
+
+z_heights_short = z_heights[::2,:]
+for i in range(len(z_heights_short[:,0])):
+    ax.plot(x,z_heights_short[i,:])
+
 ax.fill_between(x,0, z_ground, color = 'saddlebrown', zorder = 4)
 ax.set(xlabel='Horizonatal distance (km)',ylabel='Vertical height (km)')
-## Plot isobars
-# v_line = [2,5,10,20,30,40,50,60,70,80,90,100]
-v_line = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.95,1]
-CS = ax.contour(xx, zz, eta_2D, levels = v_line, colors = 'black', zorder = 10)
-ax.clabel(CS, colors = 'k', fontsize=14) #contour line labels
-
-## contour pressure feild
-v, Cnorm = confil(P_d_final)
-C = ax.contourf(xx, zz, P_d_final, cmap = 'coolwarm', norm = Cnorm, levels = v, zorder = 1)
-clb = plt.colorbar(C,cax=cax, extend='both')
-clb.set_label('Pressure kPa', fontsize = plt_set.label)
-clb.ax.tick_params(labelsize= plt_set.tick_size) 
-clb.set_alpha(.95)
-clb.draw_all()
 
 
 
 
-# %%
-## Set up Figure for plotting multiple variable on one graph
-fig, ax = plt.subplots(1,1, figsize=(10,5))
-fig.suptitle('Pressure (kPa) at height (km)', fontsize= plt_set.title_size, fontweight="bold")
-divider = make_axes_locatable(ax)
-cax = divider.append_axes("right", size="5%", pad=0.05)
 
-def confil(var):
-    """ 
-    This funstion set up the extent for you color bar
-    """
-    v = np.linspace(0,105,56)
-    Cnorm = colors.Normalize(vmin= np.min(var), vmax =np.max(var))
-    return v, Cnorm
-
-## Plot mnt
-ax.fill_between(x,0, z_ground, color = 'saddlebrown', zorder = 4)
-ax.set(xlabel='Horizonatal distance (km)',ylabel='Vertical height (km)')
-## Plot isobars
-v_line = [2,5,10,20,30,40,50,60,70,80,90,100]
-CS = ax.contour(xx, zz, P_d_final, levels = v_line, colors = 'black', zorder = 10)
-ax.clabel(CS, fmt = '%2.1d', colors = 'k', fontsize=14) #contour line labels
-
-## contour pressure feild
-v, Cnorm = confil(P_d_final)
-C = ax.contourf(xx, zz, P_d_final, cmap = 'coolwarm', norm = Cnorm, levels = v, zorder = 1)
-clb = plt.colorbar(C,cax=cax, extend='both')
-clb.set_label('Pressure kPa', fontsize = plt_set.label)
-clb.ax.tick_params(labelsize= plt_set.tick_size) 
-clb.set_alpha(.95)
-clb.draw_all()
-
-# %%
-
-
-# %%
