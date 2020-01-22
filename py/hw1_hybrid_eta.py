@@ -238,14 +238,14 @@ P_d_final = np.stack(P_d_final)
 ## Set up Figure for plotting P-x graph with lines of constant eta
 fig, ax = plt.subplots(1,1, figsize=(10,5))
 fig.suptitle('Constant Eta at Pressure (kPa)', fontsize= plt_set.title_size, fontweight="bold")
-
 P_d_final_short = P_d_final[::2,:]
-for i in range(len(P_d_final_short[:,0])):
-    ax.plot(x,P_d_final_short[i,:])
-plt.gca().invert_yaxis()
-ax.set(xlabel='Horizonatal distance (km)',ylabel='Pressure (kPa)')
 
-# ax.fill_between(x,0, z_ground, color = 'saddlebrown', zorder = 4)
+for i in range(len(P_d_final_short[:,0])):
+    ax.plot(x,P_d_final_short[i,:], zorder = 10)
+# plt.gca().invert_yaxis()
+ax.set(xlabel='Horizonatal distance (km)',ylabel='Pressure (kPa)')
+ax.set_ylim(ax.get_ylim()[::-1])
+
 
 
 # %% [markdown]
@@ -287,4 +287,26 @@ ax.set(xlabel='Horizonatal distance (km)',ylabel='Vertical height (km)')
 
 
 
+# %%
 
+## FOR FUN :) 
+## Set up Figure for plotting P-x graph with lines of constant eta
+fig, ax = plt.subplots(1,1, figsize=(10,5))
+fig.suptitle('Constant Eta at Pressure (kPa)', fontsize= plt_set.title_size, fontweight="bold")
+ax2 = ax.twinx()
+P_d_final_short = P_d_final[::2,:]
+
+for i in range(len(P_d_final_short[:,0])):
+    ax.plot(x,P_d_final_short[i,:], zorder = 10, color = 'k', lw = 2)
+# plt.gca().invert_yaxis()
+ax.set(xlabel='Horizonatal distance (km)',ylabel='Pressure (kPa)')
+ax.set_ylim(ax.get_ylim()[::-1])
+
+ax2.fill_between(x,0, z_ground, color = 'saddlebrown', zorder = 4)
+
+C = ax2.contourf(xx, zz, P_d_final[:-1,:], cmap = 'coolwarm', norm = Cnorm, levels = v, alpha = .8)
+clb = plt.colorbar(C,cax=cax, extend='both')
+clb.set_label('Pressure kPa', fontsize = plt_set.label)
+clb.ax.tick_params(labelsize= plt_set.tick_size) 
+clb.set_alpha(.95)
+clb.draw_all()
