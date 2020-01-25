@@ -20,6 +20,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors 
+from labellines import labelLine, labelLines
 from cr507.utils import plt_set
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
@@ -32,7 +33,7 @@ a = 0.0293 ## 0.0293 km/K
 
 
 ## Set delta x and z
-dx, dz = (20., 1.)
+dx, dz = (20., 0.1)
 
 ## Set range in x and z
 x = np.arange(0, 1000, dx)
@@ -53,6 +54,7 @@ z_ground = np.where((250 < x) & (x < 750), z_si, 0 )
 # %%
 
 ## Solve for temperature across domain 
+# def temp
 T_trop = (40 - 0.08 * xx) - 6.5*zz  ## Within hypotehtical troposphere
 T_iso = (40 - 0.08 * xx) - 6.5*12   ## Above hypotehtical troposphere (isothermal)
 
@@ -209,8 +211,10 @@ P_top = 2 ## kPa
 P_0 = 100 ## kPa
 eta_c = 0.3
 eta = np.linspace(0, 1, num=len(z))
-# eta = np.array([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.95,1])
-eta = eta[::-1]
+eta_ref = np.array([0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.85,0.9,0.95,1])
+# eta = eta[::-1]
+# eta = np.round(eta,3)
+eta = eta_ref[::-1]
 
 c1 = (2*eta_c**2)/((1 - eta_c)**3)
 
@@ -238,14 +242,13 @@ P_d_final = np.stack(P_d_final)
 ## Set up Figure for plotting P-x graph with lines of constant eta
 fig, ax = plt.subplots(1,1, figsize=(10,5))
 fig.suptitle('Constant Eta at Pressure (kPa)', fontsize= plt_set.title_size, fontweight="bold")
-P_d_final_short = P_d_final[::2,:]
 
-for i in range(len(P_d_final_short[:,0])):
-    ax.plot(x,P_d_final_short[i,:], zorder = 10)
-# plt.gca().invert_yaxis()
+for i in range(len(P_d_final[:,0])):
+    ax.plot(x,P_d_final[i,:], zorder = 1,label=str(eta[i]))
+    # ax.plot(x,P_d_final[i,:], zorder = 1)
+labelLines(plt.gca().get_lines(),zorder=2.5)
 ax.set(xlabel='Horizonatal distance (km)',ylabel='Pressure (kPa)')
 ax.set_ylim(ax.get_ylim()[::-1])
-
 
 
 # %% [markdown]
@@ -264,10 +267,19 @@ z_1 = z_ground
 P_d_final = np.vstack((P_d_final, P_d_final[-1,:]))
 
 z_list =[]
-for i in range(len(z+1)):
+# delta_z_list []
+for i in range(len(eta)):
     z_list.append(z_1)
-    z_2 = (a*T_avg[i,:])*np.log(P_d_final[i,:]/P_d_final[i+1,:])+z_1
-    z_1 = z_2
+    T_trop = (40 - 0.08 * x) - 6.5*z_1
+    T_trop = T_trop + 273.15
+    delta_z = a * T_trop * np.log(P_d_final[i,:]/P_d_final[i+1,:])
+    z_1 = z_1 + delta_z
+    if z_1.all() > 12:
+        T_iso = (40 - 0.08 * xx) - 6.5*12
+        delta_z = a * T_iso * np.log(P_d_final[i,:]/P_d_final[i+1,:])
+        z_1 = z_1 + delta_z
+    else:
+        pass
 
 z_heights = np.stack(z_list)
 
@@ -277,36 +289,18 @@ z_heights = np.stack(z_list)
 fig, ax = plt.subplots(1,1, figsize=(10,5))
 fig.suptitle('Constant Eta at height (km)', fontsize= plt_set.title_size, fontweight="bold")
 
-z_heights_short = z_heights[::2,:]
-for i in range(len(z_heights_short[:,0])):
-    ax.plot(x,z_heights_short[i,:])
+# z_heights_short = z_heights[::2,:]
+for i in range(len(z_heights[:,0])):
+    ax.plot(x,z_heights[i,:])
 
-ax.fill_between(x,0, z_ground, color = 'saddlebrown', zorder = 4)
+# ax.fill_between(x,0, z_ground, color = 'saddlebrown', zorder = 4)
 ax.set(xlabel='Horizonatal distance (km)',ylabel='Vertical height (km)')
 
 
 
 
+
+
+
+
 # %%
-
-## FOR FUN :) 
-## Set up Figure for plotting P-x graph with lines of constant eta
-fig, ax = plt.subplots(1,1, figsize=(10,5))
-fig.suptitle('Constant Eta at Pressure (kPa)', fontsize= plt_set.title_size, fontweight="bold")
-ax2 = ax.twinx()
-P_d_final_short = P_d_final[::2,:]
-
-for i in range(len(P_d_final_short[:,0])):
-    ax.plot(x,P_d_final_short[i,:], zorder = 10, color = 'k', lw = 2)
-# plt.gca().invert_yaxis()
-ax.set(xlabel='Horizonatal distance (km)',ylabel='Pressure (kPa)')
-ax.set_ylim(ax.get_ylim()[::-1])
-
-ax2.fill_between(x,0, z_ground, color = 'saddlebrown', zorder = 4)
-
-C = ax2.contourf(xx, zz, P_d_final[:-1,:], cmap = 'coolwarm', norm = Cnorm, levels = v, alpha = .8)
-clb = plt.colorbar(C,cax=cax, extend='both')
-clb.set_label('Pressure kPa', fontsize = plt_set.label)
-clb.ax.tick_params(labelsize= plt_set.tick_size) 
-clb.set_alpha(.95)
-clb.draw_all()

@@ -14,7 +14,7 @@
 # %%
 """
 define the path to important folders without having
-to install anything -- just do:
+ to install anything -- just do:
 
 import contenxt
 
