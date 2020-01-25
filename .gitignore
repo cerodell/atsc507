@@ -2,7 +2,10 @@
 
 data/
 *.csv
-
+*.csv
+*.DS_Store
+*.ipynb_checkpoints
+*.pyc 
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

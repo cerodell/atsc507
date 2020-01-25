@@ -291,7 +291,9 @@ fig.suptitle('Constant Eta at height (km)', fontsize= plt_set.title_size, fontwe
 
 # z_heights_short = z_heights[::2,:]
 for i in range(len(z_heights[:,0])):
-    ax.plot(x,z_heights[i,:])
+    ax.plot(x,z_heights[i,:],label=str(eta[i]))
+labelLines(plt.gca().get_lines(),zorder=2.5)
+ax.set(xlabel='Horizonatal distance (km)',ylabel='Pressure (kPa)')
 
 # ax.fill_between(x,0, z_ground, color = 'saddlebrown', zorder = 4)
 ax.set(xlabel='Horizonatal distance (km)',ylabel='Vertical height (km)')
