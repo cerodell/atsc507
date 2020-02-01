@@ -5,7 +5,7 @@ from pathlib import Path
 from netCDF4 import Dataset
 from datetime import datetime
 
-from wrf import (getvar, g_uvmet)
+from wrf import (getvar, g_uvmet, get_cartopy, latlon_coords)
 
 
 """ ####################################################################### """
@@ -39,15 +39,23 @@ def readwrf(filein):
         rain_c    = getvar(wrf_file, "RAINC")
         rain_sh   = getvar(wrf_file, "RAINSH")
         rain_nc   = getvar(wrf_file, "RAINNC")
+        
+        # cord = get_cartopy(rh)
+        # lat,lon = latlon_coords(rh)
 
         var_list = [slp, rh,temp,wsp_wdir,rain_c, rain_sh, rain_nc]
         # var_list = [rh]
         ds = xr.merge(var_list)
+        # cord_list.append(cord)
+        # lat_list.append(lat)
+        # lon_list.append(lon)
         ds_list.append(ds)
+
 
     ds_wrf = xr.combine_nested(ds_list, 'time')
 
-
+    # cord = cord_list[0]
+    # lat, lon = lat_list[0], lon_list[0]
 
     # out_dir = str(context.data_dir)
     # out_dir = Path(str(context.data_dir)+str('/xr/') + str('/') +  str(ds_name) + str(f".zarr"))
