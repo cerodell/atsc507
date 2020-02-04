@@ -26,7 +26,7 @@ def readwrf(filein):
     """
     ds_list = []
     pathlist = sorted(Path(filein).glob('wrfout_d01*'))
-    print(pathlist)
+    # print(pathlist)
     for path in pathlist:
         path_in_str = str(path)
         wrf_file = Dataset(path_in_str,'r')
