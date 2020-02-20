@@ -55,8 +55,11 @@ lon = np.array(df['lon_degr'])
 
 ## Set up Figure for plotting multiple variable on one graph
 fig, ax = plt.subplots(1,1, figsize=(12,4))
-fig.suptitle('North America Mercator Projection?', fontsize= plt_set.title_size, fontweight="bold")
+fig.suptitle('Northern Hemisphere Lat/Lon Projection?', fontsize= plt_set.title_size, fontweight="bold")
 ax.plot(lon, lat)
+ax.set_xlabel('Lon')
+ax.set_ylabel('Lat')
+
 
 
 # %%
@@ -77,7 +80,7 @@ y = r * np.sin(lon * DtoR)
 
 ## Make plot of Polar Stereographic projection
 fig, ax = plt.subplots(1,1, figsize=(10,10))
-fig.suptitle('North America Polar Stereographic', fontsize= plt_set.title_size, fontweight="bold")
+fig.suptitle('Northern Hemisphere Polar Stereographic', fontsize= plt_set.title_size, fontweight="bold")
 ax.plot(x, y)
 ax.set_xlabel('x km', fontsize = plt_set.label)
 ax.set_ylabel('y km', fontsize = plt_set.label)
@@ -226,7 +229,7 @@ plt.show()
 # $$
 
 # $$
-# II = \frac{\partial u_{m}}{\partial x}u_{m}
+# II = \frac{\partial u_{m}u_{s}}{\partial x}
 # $$
 
 
