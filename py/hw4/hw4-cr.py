@@ -103,7 +103,8 @@ class Integrator:
 
     # function slope
     def TempFun(self):
-        f = 1.5 * ( 2 - 1.5 * self.t - (self.Tn / (2 - 1.5 * self.t)))
+        print(self.t)
+        f = 1.5 * ( 2 - 1.5 * self.t - (self.Tn / (2 - (1.5 * self.t))))
         return f
 
     ## Euler forward
@@ -116,14 +117,35 @@ class Integrator:
         T_str = self.Tn + (self.dt/2) * self.TempFun()
 
         Tn = self.Tn
-        print(self.Tn)
         self.Tn = T_str
-        print(self.Tn)
 
         self.t  = (self.t + (self.dt/2))
-        print(self.t)
         T  = Tn + self.dt * self.TempFun()
         return round(T, 4)
+
+    ## Runge–Kutta 3rd order 
+    def rk3(self): 
+        T_str = self.Tn + (self.dt/3) * self.TempFun()
+        Tn = self.Tn
+        t = self.t
+
+        self.Tn = T_str
+        self.t  = (t + (self.dt/3))
+        T_str_str  = Tn + (self.dt/2) * self.TempFun()
+
+        self.Tn = T_str_str
+        self.t  = (t + (self.dt/2))
+        T  = Tn + self.dt * self.TempFun()
+        return round(T, 4)
+
+
+    ## Runge–Kutta 4th order 
+    def rk4(self): 
+        T_str = self.Tn + (self.dt/3) * self.TempFun()
+        Tn = self.Tn
+        t = self.t
+
+
 
 
 # %%
@@ -138,7 +160,13 @@ T_dict.update({"Euler Forward": intVals.eulerf()})
 
 T_dict.update({"Runge–Kutta 2nd order": intVals.rk2()})
 
+T_dict.update({"Runge–Kutta 3rd order": intVals.rk3()})
+
+
 
 print(T_dict)
 
 
+
+
+# %%
