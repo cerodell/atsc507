@@ -32,38 +32,6 @@
 #  the expression for Tref.  This takes advantage of the fact that Tref is constant 
 # along any of the curves in the fig below.*
 
-
-# %%
-import context
-import numpy as np
-from collections import namedtuple 
-
-
-
-## Initial condtions / function parameters 
-Tref = 3        ## Referance temp
-m = 0           ## ?
-Tn = 2          ## Initial referance tmep
-A = 1           ## Not sure, empirical constant?
-c = 1.5         ## Not sure, empirical constant?
-dt = 1     ## timestep 
-# t = m*delta_t   ## time
-
-## Analytic solution?
-T_final = A * (1.5 * m * dt  + Tref - Tn) * (Tn - 1.5 *m * dt)
-
-
-
-# # function slope
-# def TempFun(m, dt, Tn):
-#     """
-#     Out put of slope of function at defined condtions
-#     """
-#     t = m * dt
-#     f = 1.5 * ( 2 - 1.5 * t - (Tn / (2 - 1.5 * t)))
-#     return f
-
-
 # %% [markdown]
 #
 # Please start from initial condition of T = 2 degC as we did in class, but compute
@@ -117,22 +85,24 @@ T_final = A * (1.5 * m * dt  + Tref - Tn) * (Tn - 1.5 *m * dt)
 # from the previous HW for this.)
 
 # %%
+import context
+import numpy as np
+from collections import namedtuple 
 
 
-initialVals={'Tn': 1. ,'t':0. ,'m':0. ,'dt':1.}
 class Integrator:
 
-    def __init__(self, Tn, t,m, dt):
-        self.Tn = Tn
-        self.t  = t
-        self.m  = m
-        self.dt = dt
+    def __init__(self, valueDict):
+        self.__dict__.update(valueDict)
+
+    def solution(self):
+        T = self.A * ((self.c * self.m * self.dt) \
+             + self.Tref - self.Tn) * (self.Tn - (self.c * self.m * self.dt))
+        return T
+
 
     # function slope
     def TempFun(self):
-        """
-        Out put of slope of function at defined condtions
-        """
         f = 1.5 * ( 2 - 1.5 * self.t - (self.Tn / (2 - 1.5 * self.t)))
         return f
 
@@ -158,8 +128,10 @@ class Integrator:
 
 # %%
 
+initialVals={'Tn': 1. , 't':0. , 'm':0. ,'dt':1. , 'A': 1. , 'Tref': 3. , 'c': 1.5 }
+intVals= Integrator(initialVals)
 
-intVals= Integrator(1. , 0. , 0. , 1.)
+# intVals= Integrator(1. , 0. , 0. , 1.)
 T_dict = {}
 
 T_dict.update({"Euler Forward": intVals.eulerf()})
@@ -170,4 +142,3 @@ T_dict.update({"Runge–Kutta 2nd order": intVals.rk2()})
 print(T_dict)
 
 
-# %%
