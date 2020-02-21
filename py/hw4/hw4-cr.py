@@ -2,7 +2,7 @@
 
 # # Homework 4
 # ## ATSC 507
-# ### Christopher Rodel
+# ### Christopher Rodell
 
 
 # %% [markdown]
@@ -47,8 +47,8 @@
 # - b\) Runge–Kutta 2nd order (mid-point)
 # $$
 # \begin{aligned}
-# &T^{*}=T_{n}+\frac{\Delta t}{2} f\left(T_{n}, t_{n}, \cdots\right)\\
-# &T_{n+1}=T_{n}+\Delta t f\left(T^{*}, t_{n}+\frac{\Delta t}{2} \ , \ldots .\right)
+# &T^{*}=T_{n}+\frac{\Delta t}{2} \ f\left(T_{n}, t_{n}, \cdots\right)\\
+# &T_{n+1}=T_{n}+\Delta t \ f\left(T^{*}, t_{n}+\frac{\Delta t}{2} \ , \ldots .\right)
 # \end{aligned}
 # $$
 # $$
@@ -58,8 +58,8 @@
 # - c\) Runge–Kutta 3rd order
 # $$
 # \begin{array}{l}
-# {T^{*}=T_{n}+\frac{\Delta t}{3} f(T_{n} \ , t_{n} \ , x_{n})} \\
-# {T^{* *}=T_{n}+\frac{\Delta t}{2} f\left(T^{*}, t_{n}+\frac{\Delta t}{3}\right)} \\
+# {T^{*}=T_{n}+\frac{\Delta t}{3} \ f(T_{n} \ , t_{n} \ , x_{n})} \\
+# {T^{* *}=T_{n}+\frac{\Delta t}{2} \ f\left(T^{*}, t_{n}+\frac{\Delta t}{3}\right)} \\
 # {T_{n+1}=T_{n}+\Delta t+\left(T^{**}, \quad t_{n} + \frac{\Delta t}{2}, \cdots\right)}
 # \end{array}
 # $$
@@ -71,26 +71,29 @@
 # $$
 # \begin{array}{l}
 # {k_{1}=f(T_{n} \ , \ x_{n} \ , \ t_{n})} \\
-# {k_{2}=f\left(T_{n}+\frac{1}{2} \Delta t k_{1}, \ x_{n} \ , \ t_{n}+\frac{1}{2} \Delta t\right)} \\
-# {k_{3}=f\left(T_{n}+\frac{1}{2} \Delta t k_{2}, \ x_{n} \ , \ t_{n}+\frac{1}{2} \Delta t\right)} \\
-# {k_{4}=f\left(T_{n} + \Delta t k_{3} \ , \ x_{n} \ , \ t_{n}+\Delta t\right)} \\
-# {T_{n+1}=T_{n}+\frac{\Delta t}{6}\left(k_{1}+2 k_{2}+2 k_{3}+k_{4}\right)}
+# {k_{2}=f\left(T_{n}+\frac{1}{2} \Delta t \ k_{1}, \ x_{n} \ , \ t_{n}+\frac{1}{2} \Delta t\right)} \\
+# {k_{3}=f\left(T_{n}+\frac{1}{2} \Delta t \ k_{2}, \ x_{n} \ , \ t_{n}+\frac{1}{2} \Delta t\right)} \\
+# {k_{4}=f\left(T_{n} + \Delta t \ k_{3} \ , \ x_{n} \ , \ t_{n}+\Delta t\right)} \\
+# {T_{n+1}=T_{n}+\frac{\Delta t}{6} \ \left(k_{1}+2 k_{2}+2 k_{3}+k_{4}\right)}
 # \end{array}
 # $$
 # $$
 # \\
 # $$
-# e) Which one gave an answer closest to the actual analytical answer
+# - e\) Which one gave an answer closest to the actual analytical answer
 #  as given by the function above?   (Note: do NOT use the 1-D model 
 # from the previous HW for this.)
-
+# $$
+# \\
+# $$
+# **Runge–Kutta 3rd order gave the best approximation and was closest to the analytical solution.**
 # %%
 import context
 import numpy as np
 from collections import namedtuple 
 
 
-class Integrator:
+class Approximator:
 
     def __init__(self, valueDict):
         self.__dict__.update(valueDict)
@@ -103,7 +106,6 @@ class Integrator:
 
     # function slope
     def TempFun(self):
-        print(self.t)
         f = 1.5 * ( 2 - 1.5 * self.t - (self.Tn / (2 - (1.5 * self.t))))
         return f
 
@@ -114,20 +116,25 @@ class Integrator:
 
     ## Runge–Kutta 2nd order (mid-point)
     def rk2(self): 
-        T_str = self.Tn + (self.dt/2) * self.TempFun()
-
         Tn = self.Tn
-        self.Tn = T_str
+        t = self.t
 
-        self.t  = (self.t + (self.dt/2))
+        T_str = Tn + (self.dt/2) * self.TempFun()
+
+        self.Tn = T_str
+        self.t  = (t + (self.dt/2))
         T  = Tn + self.dt * self.TempFun()
+
+        self.Tn = Tn
+        self.t  = t
         return round(T, 4)
 
     ## Runge–Kutta 3rd order 
     def rk3(self): 
-        T_str = self.Tn + (self.dt/3) * self.TempFun()
         Tn = self.Tn
         t = self.t
+
+        T_str = self.Tn + (self.dt/3) * self.TempFun()
 
         self.Tn = T_str
         self.t  = (t + (self.dt/3))
@@ -136,37 +143,54 @@ class Integrator:
         self.Tn = T_str_str
         self.t  = (t + (self.dt/2))
         T  = Tn + self.dt * self.TempFun()
+
+        self.Tn = Tn
+        self.t  = t
         return round(T, 4)
 
 
     ## Runge–Kutta 4th order 
     def rk4(self): 
-        T_str = self.Tn + (self.dt/3) * self.TempFun()
         Tn = self.Tn
         t = self.t
+
+        k1 = self.TempFun()
+
+        self.Tn = (Tn + (self.dt/2)*k1)
+        self.t  = (t + (self.dt/2))
+        k2 = self.TempFun()
+
+        self.Tn = (Tn + (self.dt/2)*k2)
+        self.t  = (t + (self.dt/2))
+        k3 = self.TempFun()
+
+        self.Tn = (Tn + self.dt*k3)
+        self.t  = (t + (self.dt))
+        k4 = self.TempFun()
+
+        T = Tn + (self.dt/6) * (k1 + (2 * k2) + (2 * k3) + k4)
+
+        self.Tn = Tn
+        self.t  = t
+        return round(T, 4)
 
 
 
 
 # %%
 
-initialVals={'Tn': 1. , 't':0. , 'm':0. ,'dt':1. , 'A': 1. , 'Tref': 3. , 'c': 1.5 }
-intVals= Integrator(initialVals)
+initialVals={'Tn': 2. , 't':0. , 'm':1. ,'dt':1. , 'A': 1. , 'Tref': 3. , 'c': 1.5 }
+intVals= Approximator(initialVals)
 
-# intVals= Integrator(1. , 0. , 0. , 1.)
 T_dict = {}
 
+T_dict.update({"Analytic Solution": intVals.solution()})
 T_dict.update({"Euler Forward": intVals.eulerf()})
-
 T_dict.update({"Runge–Kutta 2nd order": intVals.rk2()})
-
 T_dict.update({"Runge–Kutta 3rd order": intVals.rk3()})
-
+T_dict.update({"Runge–Kutta 4th order": intVals.rk4()})
 
 
 print(T_dict)
 
 
-
-
-# %%
