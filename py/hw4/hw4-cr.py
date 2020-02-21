@@ -36,6 +36,7 @@
 # %%
 import context
 import numpy as np
+from collections import namedtuple 
 
 
 
@@ -49,18 +50,18 @@ dt = 1     ## timestep
 # t = m*delta_t   ## time
 
 ## Analytic solution?
-T_final = A * (1.5 * m * delta_t  + Tref - Tn) * (Tn - 1.5 *m * delta_t)
+T_final = A * (1.5 * m * dt  + Tref - Tn) * (Tn - 1.5 *m * dt)
 
 
 
-## function slope
+# # function slope
 # def TempFun(m, dt, Tn):
 #     """
 #     Out put of slope of function at defined condtions
 #     """
 #     t = m * dt
-#     f_Tt = 1.5 * ( 2 - 1.5 * t - (Tn / (2 - 1.5 * t)))
-#     return f_Tt
+#     f = 1.5 * ( 2 - 1.5 * t - (Tn / (2 - 1.5 * t)))
+#     return f
 
 
 # %% [markdown]
@@ -91,7 +92,7 @@ T_final = A * (1.5 * m * delta_t  + Tref - Tn) * (Tn - 1.5 *m * delta_t)
 # \begin{array}{l}
 # {T^{*}=T_{n}+\frac{\Delta t}{3} f(T_{n} \ , t_{n} \ , x_{n})} \\
 # {T^{* *}=T_{n}+\frac{\Delta t}{2} f\left(T^{*}, t_{n}+\frac{\Delta t}{3}\right)} \\
-# {T_{n+1}=T_{n}+\Delta t+\left(T^{**}, \quad t_{n} \frac{\Delta t}{2}, \cdots\right)}
+# {T_{n+1}=T_{n}+\Delta t+\left(T^{**}, \quad t_{n} + \frac{\Delta t}{2}, \cdots\right)}
 # \end{array}
 # $$
 # $$
@@ -117,25 +118,50 @@ T_final = A * (1.5 * m * delta_t  + Tref - Tn) * (Tn - 1.5 *m * delta_t)
 
 # %%
 
-## Initialize dictionary to compile dif approximation methods
+
+initialVals={'Tn': 1. ,'t':0. ,'m':0. ,'dt':1.}
+class Integrator:
+
+    def __init__(self, Tn, t,m, dt):
+        self.Tn = Tn
+        self.t  = t
+        self.m  = m
+        self.dt = dt
+
+    # function slope
+    def TempFun(self, **theTime):
+        """
+        Out put of slope of function at defined condtions
+        """
+        t = self.m * self.dt
+        f = 1.5 * ( 2 - 1.5 * t - (self.Tn / (2 - 1.5 * self.t)))
+        return f
+
+    ## Euler forward
+    def eulerf(self):
+        t = m * self.dt
+        T = self.TempFun() * self.dt + self.Tn
+        return T
+
+    # ## Runge–Kutta 2nd order (mid-point)
+    # def rk2(coeff): 
+    #     T_str = Tn + (dt/2) * TempFun(m, dt, Tn)
+    #     T  = TempFun(coeff.m, (coeff.dt + (coeff.dt/2)), coeff.Tn) * coeff.dt + coeff.Tn
+
+    # T_dict.update({"Runge–Kutta 2nd order": rk2(coeff)})
+
+
+# %%
+
+
+intVals= Integrator(1. , 0. , 0. , 1.)
 T_dict = {}
 
-
-## Euler forward
-def eulerf(m, dt, Tn):
-    t = m * dt
-    f_Tt = 1.5 * ( 2 - 1.5 * t - (Tn / (2 - 1.5 * t)))
-    T = TempFun(m, dt, Tn) * dt + Tn
-    return T
+T_dict.update({"Euler Forward": intVals.eulerf()})
 
 
-T_dict.update({"Euler Forward": eulerf(m, dt, Tn)})
-
-
-## Euler forward
-T_str = Tn + (dt/2) * TempFun(m, dt, Tn)
-T_n1  = TempFun(m, dt, Tn) * dt + Tn
-T_dict.update({"Euler Forward": T_n1 })
+    # ## Initialize dictionary to compile dif approximation methods
+    # T_dict = {}
 
 
 # %%
