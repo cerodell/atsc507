@@ -40,20 +40,27 @@ import numpy as np
 
 
 ## Initial condtions / function parameters 
-Tref = 3
-m = 0
-Tn = 2      ## Initial referance tmep
+Tref = 3        ## Referance temp
+m = 0           ## ?
+Tn = 2          ## Initial referance tmep
 A = 1           ## Not sure, empirical constant?
 c = 1.5         ## Not sure, empirical constant?
-delta_t = 1     ## timestep 
-t = m*delta_t   ## time
+dt = 1     ## timestep 
+# t = m*delta_t   ## time
 
 ## Analytic solution?
-
 T_final = A * (1.5 * m * delta_t  + Tref - Tn) * (Tn - 1.5 *m * delta_t)
 
-## slope at n = 0?
-f_Tt = 1.5 * ( 2 - 1.5 * t - (Tn / (2 - 1.5 * t)))
+
+
+## function slope
+# def TempFun(m, dt, Tn):
+#     """
+#     Out put of slope of function at defined condtions
+#     """
+#     t = m * dt
+#     f_Tt = 1.5 * ( 2 - 1.5 * t - (Tn / (2 - 1.5 * t)))
+#     return f_Tt
 
 
 # %% [markdown]
@@ -62,13 +69,13 @@ f_Tt = 1.5 * ( 2 - 1.5 * t - (Tn / (2 - 1.5 * t)))
 #  the new T (degC) at 1 timestep (1∆t) ahead using:
 # - a\) Euler forward
 #$$
-# T_{n+1}=f(1 + t \ \Delta t )_{n}
+# T_{n+1}=f(T_{n}, \ t_{n}) * \Delta t + T_{n}
 # $$
 # $$
 # \\
 # $$
 #
-# - b\) RK2
+# - b\) Runge–Kutta 2nd order (mid-point)
 # $$
 # \begin{aligned}
 # &T^{*}=T_{n}+\frac{\Delta t}{2} f\left(T_{n}, t_{n}, \cdots\right)\\
@@ -79,10 +86,10 @@ f_Tt = 1.5 * ( 2 - 1.5 * t - (Tn / (2 - 1.5 * t)))
 # \\
 # $$
 #
-# - c\) RK3
+# - c\) Runge–Kutta 3rd order
 # $$
 # \begin{array}{l}
-# {T^{*}=T_{n}+\frac{\Delta t}{3} f(T, t, x)_{n}} \\
+# {T^{*}=T_{n}+\frac{\Delta t}{3} f(T_{n} \ , t_{n} \ , x_{n})} \\
 # {T^{* *}=T_{n}+\frac{\Delta t}{2} f\left(T^{*}, t_{n}+\frac{\Delta t}{3}\right)} \\
 # {T_{n+1}=T_{n}+\Delta t+\left(T^{**}, \quad t_{n} \frac{\Delta t}{2}, \cdots\right)}
 # \end{array}
@@ -91,17 +98,15 @@ f_Tt = 1.5 * ( 2 - 1.5 * t - (Tn / (2 - 1.5 * t)))
 # \\
 # $$
 #
-# - d\) RK4
+# - d\) Runge–Kutta 4th order
 # $$
-# \begin{aligned}
-# &k_{1}=f(T, \ x \ , \ t)_{n}\\
-# &\begin{array}{l}
+# \begin{array}{l}
+# {k_{1}=f(T_{n} \ , \ x_{n} \ , \ t_{n})} \\
 # {k_{2}=f\left(T_{n}+\frac{1}{2} \Delta t k_{1}, \ x_{n} \ , \ t_{n}+\frac{1}{2} \Delta t\right)} \\
-# {k_{3}=f\left(T_{n}+\frac{1}{2} \Delta t k_{2}, \ x_{n} \ , \ t_{n}+\frac{1}{2} \Delta t\right)}
-# \end{array}\\
-# &k_{4}=f\left(T_{n} + \Delta t k_{3} \ , \ x_{n} \ , \ t_{n}+\Delta t\right)\\
-# &T_{n+1}=T_{n}+\frac{\Delta t}{6}\left(k_{1}+2 k_{2}+2 k_{3}+k_{4}\right)
-# \end{aligned}
+# {k_{3}=f\left(T_{n}+\frac{1}{2} \Delta t k_{2}, \ x_{n} \ , \ t_{n}+\frac{1}{2} \Delta t\right)} \\
+# {k_{4}=f\left(T_{n} + \Delta t k_{3} \ , \ x_{n} \ , \ t_{n}+\Delta t\right)} \\
+# {T_{n+1}=T_{n}+\frac{\Delta t}{6}\left(k_{1}+2 k_{2}+2 k_{3}+k_{4}\right)}
+# \end{array}
 # $$
 # $$
 # \\
@@ -112,9 +117,24 @@ f_Tt = 1.5 * ( 2 - 1.5 * t - (Tn / (2 - 1.5 * t)))
 
 # %%
 
+## Initialize dictionary to compile dif approximation methods
 T_dict = {}
+
+
 ## Euler forward
-T_n1 = f_Tt * delta_t + Tn
+def eulerf(m, dt, Tn):
+    t = m * dt
+    f_Tt = 1.5 * ( 2 - 1.5 * t - (Tn / (2 - 1.5 * t)))
+    T = TempFun(m, dt, Tn) * dt + Tn
+    return T
+
+
+T_dict.update({"Euler Forward": eulerf(m, dt, Tn)})
+
+
+## Euler forward
+T_str = Tn + (dt/2) * TempFun(m, dt, Tn)
+T_n1  = TempFun(m, dt, Tn) * dt + Tn
 T_dict.update({"Euler Forward": T_n1 })
 
 
