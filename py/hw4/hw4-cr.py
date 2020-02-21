@@ -129,26 +129,31 @@ class Integrator:
         self.dt = dt
 
     # function slope
-    def TempFun(self, **theTime):
+    def TempFun(self):
         """
         Out put of slope of function at defined condtions
         """
-        t = self.m * self.dt
-        f = 1.5 * ( 2 - 1.5 * t - (self.Tn / (2 - 1.5 * self.t)))
+        f = 1.5 * ( 2 - 1.5 * self.t - (self.Tn / (2 - 1.5 * self.t)))
         return f
 
     ## Euler forward
     def eulerf(self):
-        t = m * self.dt
         T = self.TempFun() * self.dt + self.Tn
         return T
 
-    # ## Runge–Kutta 2nd order (mid-point)
-    # def rk2(coeff): 
-    #     T_str = Tn + (dt/2) * TempFun(m, dt, Tn)
-    #     T  = TempFun(coeff.m, (coeff.dt + (coeff.dt/2)), coeff.Tn) * coeff.dt + coeff.Tn
+    ## Runge–Kutta 2nd order (mid-point)
+    def rk2(self): 
+        T_str = self.Tn + (self.dt/2) * self.TempFun()
 
-    # T_dict.update({"Runge–Kutta 2nd order": rk2(coeff)})
+        Tn = self.Tn
+        print(self.Tn)
+        self.Tn = T_str
+        print(self.Tn)
+
+        self.t  = (self.t + (self.dt/2))
+        print(self.t)
+        T  = Tn + self.dt * self.TempFun()
+        return round(T, 4)
 
 
 # %%
@@ -159,9 +164,10 @@ T_dict = {}
 
 T_dict.update({"Euler Forward": intVals.eulerf()})
 
+T_dict.update({"Runge–Kutta 2nd order": intVals.rk2()})
 
-    # ## Initialize dictionary to compile dif approximation methods
-    # T_dict = {}
+
+print(T_dict)
 
 
 # %%
