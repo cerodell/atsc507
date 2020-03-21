@@ -9,10 +9,20 @@ from context import data_dir
 
 
 
-df = pd.read_csv(str(data_dir) + '/davis_sation_data.txt', sep = '\s+', skiprows = 3)
+df = pd.read_csv(str(data_dir) + '/kestrel_2020.csv')
 
 
 
-new = df[['Date', 'Time', 'TempOut', "OutHum", 'DewPt', 'Bar']].copy()
+# new = df[['Date', 'Time', 'TempOut', "OutHum", 'DewPt', 'Bar']].copy()
 
-new.to_csv(str(data_dir) + '/davis_wxsation.csv')
+
+
+# new = df[['Time', 'Temp', "WindSpeed"]].copy()
+# new2 = new{}
+
+
+# new.to_csv(str(data_dir) + '/kestral.csv')
+
+
+
+
