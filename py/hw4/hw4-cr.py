@@ -60,7 +60,7 @@
 # \begin{array}{l}
 # {T^{*}=T_{n}+\frac{\Delta t}{3} \ f(T_{n} \ , t_{n} \ , x_{n})} \\
 # {T^{* *}=T_{n}+\frac{\Delta t}{2} \ f\left(T^{*}, t_{n}+\frac{\Delta t}{3}\right)} \\
-# {T_{n+1}=T_{n}+\Delta t+\left(T^{**}, \quad t_{n} + \frac{\Delta t}{2}, \cdots\right)}
+# {T_{n+1}=T_{n}+\Delta t\left(T^{**}, \quad t_{n} + \frac{\Delta t}{2}, \cdots\right)}
 # \end{array}
 # $$
 # $$
