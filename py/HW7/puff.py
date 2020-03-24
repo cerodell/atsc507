@@ -150,7 +150,7 @@ coeff = Approximator(initialVals)
 
 
 pnew=coeff.rk3()
-# print(pnew.T.shape)
+# print(pnew.shape)
 
 # plt.plot(pnew.T[:,-1])
 
@@ -159,6 +159,8 @@ fig.suptitle('Puff HW7', fontsize= plt_set.title_size, fontweight="bold")
 ax.plot(initialVals['xx'],initialVals['Pj'], color = 'blue', label = "Initial concentration", zorder = 9)
 ax.plot(initialVals['xx'],initialVals['cideal'], color = 'red', label = "Final Ideal", zorder = 8)
 ax.plot(initialVals['xx'],pnew.T[:,-1], color = 'green', label = "RK3", zorder = 10)
+# ax.plot(initialVals['xx'],pnew, color = 'green', label = "RK3", zorder = 10)
+
 ax.set_xlabel('Grid Index (i)', fontsize = plt_set.label)
 ax.set_ylabel('Quantity', fontsize = plt_set.label)
 ax.xaxis.grid(color='gray', linestyle='dashed')
