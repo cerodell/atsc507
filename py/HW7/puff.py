@@ -53,19 +53,10 @@ initialVals={'gridx': 1000 , 'dx':100.  ,'dt':10. , 'u0': 5. , \
      'xx': np.arange(0,1000,1) , 'cmax': 10. }
 
 
-# def finite_diff(xx, cons, cideal):
-#     fig, ax = plt.subplots(1,1, figsize=(12,4))
-#     fig.suptitle('Puff HW7', fontsize= plt_set.title_size, fontweight="bold")
-#     ax.plot(xx,conc, color = 'blue', label = "Initial concentration")
-#     ax.plot(xx,cideal, color = 'red', label = " Final Ideal")
-#     ax.set_xlabel('Grid Index (i)', fontsize = plt_set.label)
-#     ax.set_ylabel('Quantity', fontsize = plt_set.label)
-#     ax.xaxis.grid(color='gray', linestyle='dashed')
-#     ax.yaxis.grid(color='gray', linestyle='dashed')
-#     ax.set_ylim(-10,15)
-#     ax.legend()
-#     plt.show()
-#     return
+nsteps = (initialVals['gridx'] - 300) / (initialVals['u0'] * initialVals['dt'] / initialVals['dx'])
+nsteps = np.arange(0,nsteps)
+initialVals.update({'nsteps': nsteps})
+
 
 # %% [markdown]
 # - 1) Calculate and display the Courant number.  You can display it in the
@@ -117,6 +108,8 @@ cideal[720:741]  = np.linspace(0., -0.5*initialVals['cmax'], 21)    # insert lef
 cideal[740:761]  = np.linspace(-0.5*initialVals['cmax'], 0., 21)    # insert right side of triangle
 initialVals.update({'cideal': cideal})
 
+plot = coeff.plot_functions('Final')
+
 # fig, ax = plt.subplots(1,1, figsize=(12,4))
 # fig.suptitle('Puff HW7', fontsize= plt_set.title_size, fontweight="bold")
 # ax.plot(initialVals['xx'],initialVals['Pj'], color = 'blue', label = "Initial concentration", zorder = 10)
@@ -134,51 +127,11 @@ initialVals.update({'cideal': cideal})
 # and plot (in green) the resulting concentration on the same graph, using ...
 # %%
 
-nsteps = (initialVals['gridx'] - 300) / (initialVals['u0'] * initialVals['dt'] / initialVals['dx'])
-nsteps = np.arange(0,nsteps)
 
-# nsteps = np.pad(nsteps,(1,1), 'edge')
-initialVals.update({'nsteps': nsteps})
-# fun = np.stack(conc,nsteps)
-# initialVals.update({'fun': fun})
+plot = coeff.plot_functions('RK3')
 
 
-# print(nsteps)
 
-
-coeff = Approximator(initialVals)
-
-
-pnew=coeff.rk3()
-# print(pnew.shape)
-
-# plt.plot(pnew.T[:,-1])
-
-fig, ax = plt.subplots(1,1, figsize=(12,4))
-fig.suptitle('Puff HW7', fontsize= plt_set.title_size, fontweight="bold")
-ax.plot(initialVals['xx'],initialVals['Pj'], color = 'blue', label = "Initial concentration", zorder = 9)
-ax.plot(initialVals['xx'],initialVals['cideal'], color = 'red', label = "Final Ideal", zorder = 8)
-ax.plot(initialVals['xx'],pnew.T[:,-1], color = 'green', label = "RK3", zorder = 10)
-# ax.plot(initialVals['xx'],pnew, color = 'green', label = "RK3", zorder = 10)
-
-ax.set_xlabel('Grid Index (i)', fontsize = plt_set.label)
-ax.set_ylabel('Quantity', fontsize = plt_set.label)
-ax.xaxis.grid(color='gray', linestyle='dashed')
-ax.yaxis.grid(color='gray', linestyle='dashed')
-ax.set_ylim(-10,15)
-ax.legend()
-plt.show()
-
-
-# # PF=[]
-# P = coeff.Pj
-# PF.append(coeff.Pj)
-# for i in np.arange(1,nsteps):
-#     pnew=coeff.rk3()
-#     PF.append(pnew)
-#     # ynew=midpointinter41(coeff,y,timeVec[i-1])
-#     # ym.append(ynew)
-#     # y=ynew
 
 
 
