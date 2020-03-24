@@ -49,7 +49,7 @@ from puff_funs import Approximator
 # u     = 5.               # horizontal wind speed (m/s)
 # xx    = np.arange(0,gridx,1)
 
-initialVals={'gridx': 1000 , 'dx':100. , 'dt':1. ,'dt':10. , 'u': 5. , \
+initialVals={'gridx': 1000 , 'dx':100.  ,'dt':10. , 'u0': 5. , \
      'xx': np.arange(0,1000,1) , 'cmax': 10. }
 
 
@@ -77,7 +77,7 @@ initialVals={'gridx': 1000 , 'dx':100. , 'dt':1. ,'dt':10. , 'u': 5. , \
 # C=\frac{u \Delta t}{\Delta x} \leq C_{\max }
 # $$
 # %%
-cr = initialVals['u'] * initialVals['dt']/initialVals['dx']
+cr = initialVals['u0'] * initialVals['dt']/initialVals['dx']
 print("Courant number  ", cr)
 
 # %% [markdown]
@@ -95,16 +95,16 @@ initialVals.update({'Pj': conc})
 # - (b) Plot (using blue colour) the initial concentration distribution on a graph.
 # %%
 
-fig, ax = plt.subplots(1,1, figsize=(12,4))
-fig.suptitle('Puff HW7', fontsize= plt_set.title_size, fontweight="bold")
-ax.plot(initialVals['xx'],initialVals['Pj'], color = 'blue', label = "Initial concentration")
-ax.set_xlabel('Grid Index (i)', fontsize = plt_set.label)
-ax.set_ylabel('Quantity', fontsize = plt_set.label)
-ax.xaxis.grid(color='gray', linestyle='dashed')
-ax.yaxis.grid(color='gray', linestyle='dashed')
-ax.set_ylim(-10,15)
-ax.legend()
-plt.show()
+# fig, ax = plt.subplots(1,1, figsize=(12,4))
+# fig.suptitle('Puff HW7', fontsize= plt_set.title_size, fontweight="bold")
+# ax.plot(initialVals['xx'],initialVals['Pj'], color = 'blue', label = "Initial concentration")
+# ax.set_xlabel('Grid Index (i)', fontsize = plt_set.label)
+# ax.set_ylabel('Quantity', fontsize = plt_set.label)
+# ax.xaxis.grid(color='gray', linestyle='dashed')
+# ax.yaxis.grid(color='gray', linestyle='dashed')
+# ax.set_ylim(-10,15)
+# ax.legend()
+# plt.show()
 
 # %% [markdown]
 # 3) Also, on the same plot, show (in red) the ideal exact final solution,
@@ -117,28 +117,28 @@ cideal[720:741]  = np.linspace(0., -0.5*initialVals['cmax'], 21)    # insert lef
 cideal[740:761]  = np.linspace(-0.5*initialVals['cmax'], 0., 21)    # insert right side of triangle
 initialVals.update({'cideal': cideal})
 
-fig, ax = plt.subplots(1,1, figsize=(12,4))
-fig.suptitle('Puff HW7', fontsize= plt_set.title_size, fontweight="bold")
-ax.plot(initialVals['xx'],initialVals['Pj'], color = 'blue', label = "Initial concentration", zorder = 10)
-ax.plot(initialVals['xx'],initialVals['cideal'], color = 'red', label = "Final Ideal", zorder = 8)
-ax.set_xlabel('Grid Index (i)', fontsize = plt_set.label)
-ax.set_ylabel('Quantity', fontsize = plt_set.label)
-ax.xaxis.grid(color='gray', linestyle='dashed')
-ax.yaxis.grid(color='gray', linestyle='dashed')
-ax.set_ylim(-10,15)
-ax.legend()
-plt.show()
+# fig, ax = plt.subplots(1,1, figsize=(12,4))
+# fig.suptitle('Puff HW7', fontsize= plt_set.title_size, fontweight="bold")
+# ax.plot(initialVals['xx'],initialVals['Pj'], color = 'blue', label = "Initial concentration", zorder = 10)
+# ax.plot(initialVals['xx'],initialVals['cideal'], color = 'red', label = "Final Ideal", zorder = 8)
+# ax.set_xlabel('Grid Index (i)', fontsize = plt_set.label)
+# ax.set_ylabel('Quantity', fontsize = plt_set.label)
+# ax.xaxis.grid(color='gray', linestyle='dashed')
+# ax.yaxis.grid(color='gray', linestyle='dashed')
+# ax.set_ylim(-10,15)
+# ax.legend()
+# plt.show()
 
 # %% [markdown]
 # 4) Advect the concentration puff anomaly for the following number of time steps
 # and plot (in green) the resulting concentration on the same graph, using ...
 # %%
 
-nsteps = (initialVals['gridx'] - 300) / (initialVals['u'] * initialVals['dt'] / initialVals['dx'])
+nsteps = (initialVals['gridx'] - 300) / (initialVals['u0'] * initialVals['dt'] / initialVals['dx'])
 nsteps = np.arange(0,nsteps)
 
 # nsteps = np.pad(nsteps,(1,1), 'edge')
-initialVals.update({'t': nsteps})
+initialVals.update({'nsteps': nsteps})
 # fun = np.stack(conc,nsteps)
 # initialVals.update({'fun': fun})
 
@@ -149,15 +149,34 @@ initialVals.update({'t': nsteps})
 coeff = Approximator(initialVals)
 
 
-# PF=[]
-P = coeff.Pj
-PF.append(coeff.Pj)
-for i in np.arange(1,nsteps):
-    pnew=coeff.rk3()
-    PF.append(pnew)
-    # ynew=midpointinter41(coeff,y,timeVec[i-1])
-    # ym.append(ynew)
-    # y=ynew
+pnew=coeff.rk3()
+# print(pnew.T.shape)
+
+# plt.plot(pnew.T[:,-1])
+
+fig, ax = plt.subplots(1,1, figsize=(12,4))
+fig.suptitle('Puff HW7', fontsize= plt_set.title_size, fontweight="bold")
+ax.plot(initialVals['xx'],initialVals['Pj'], color = 'blue', label = "Initial concentration", zorder = 9)
+ax.plot(initialVals['xx'],initialVals['cideal'], color = 'red', label = "Final Ideal", zorder = 8)
+ax.plot(initialVals['xx'],pnew.T[:,-1], color = 'green', label = "RK3", zorder = 10)
+ax.set_xlabel('Grid Index (i)', fontsize = plt_set.label)
+ax.set_ylabel('Quantity', fontsize = plt_set.label)
+ax.xaxis.grid(color='gray', linestyle='dashed')
+ax.yaxis.grid(color='gray', linestyle='dashed')
+ax.set_ylim(-10,15)
+ax.legend()
+plt.show()
+
+
+# # PF=[]
+# P = coeff.Pj
+# PF.append(coeff.Pj)
+# for i in np.arange(1,nsteps):
+#     pnew=coeff.rk3()
+#     PF.append(pnew)
+#     # ynew=midpointinter41(coeff,y,timeVec[i-1])
+#     # ym.append(ynew)
+#     # y=ynew
 
 
 
