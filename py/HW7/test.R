@@ -1,4 +1,7 @@
-
+# install.packages("magrittr") # package installations are only needed the first time you use it
+# install.packages("dplyr")    # alternative installation of the %>%
+library(magrittr) # needs to be run every time you start R and want to use %>%
+library(dplyr)    # alternatively, this also loads %>%
 # Part 6 - PPM scheme advection
 
 ```{r setup, include=FALSE}
@@ -194,24 +197,24 @@ for (n in 1:nsteps) {                   # for each time step n
 
 
 ## Make PPM plot
-
 ```{r}
 df <- data.frame("Initial Concentration" = conc_orig, 
                  "Final Ideal" = cideal, 
                  "PPM" = conc,
-                 "Grid Index (i)" = xvals)
+                 "Grid Index" = xvals)
 ```
 
 
 ```{r}
-df %>% ggplot(aes(x = grid.space)) +
-  geom_line(aes(y = Original.Concentration, color = "Original")) +
-  geom_line(aes(y = Ideal.solution, color ="Ideal")) +
-  geom_line(aes(y = PPM.solution, color ="PPM")) +
+df %>% ggplot(aes(x = Grid.Index)) +
+  geom_line(aes(y = Initial.Concentration, color = "Initial")) +
+  geom_line(aes(y = Final.Ideal, color ="Final")) +
+  geom_line(aes(y = PPM, color ="PPM")) +
   theme_bw() +
   xlab("Grid Index (i)") +
   ylab("Quantity")+
-  scale_color_manual(values = c("Original" = 'blue', 
-                                "Ideal" = "red", 
+  scale_color_manual(values = c("Initial" = 'blue', 
+                                "Final" = "red", 
                                 "PPM" = "green")) +
   ggtitle("Piecewise Parabolic Method  CR: 0.5")
+

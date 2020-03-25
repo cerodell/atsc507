@@ -1,6 +1,6 @@
 # %% [markdown]
 # # HW 7
-# ## ATSC 707
+# ## ATSC 507
 # ##### Christopher Rodell 
 
 
@@ -35,9 +35,26 @@ from puff_funs import Approximator
 # $$
 # P_{j, n+1}=P_{j, n} -u_{0} \frac{P_{j,n}-P_{j-1,n}}{ \Delta x} \Delta t
 # $$
-# - (b) RK3 - Runga-Kutte 3rd order, and
+# - (b) RK3 - - RK3 centered in space
+# $$
+# \\
+# $$
+# $$
+# P_{i,n}^{*}=P_{i, n}+\frac{\Delta t}{3}\left[-u_{0} \frac{P_{i+1, n}-P_{i-1, n}}{2\Delta x}\right]
+# $$
+# $$
+# P_{i,n}^{**}=P_{i, n}+\frac{\Delta t}{2}\left[-u_{0} \frac{P_{i+1, n}^{*}-P_{i-1, n}^{*}}{2\Delta x}\right]
+# $$
+# $$
+# P_{i,n+1}=P_{i, n}+\Delta t\left[-u_{0} \frac{P_{i+1, n}^{**}-P_{i-1, n}^{**}}{2\Delta x}\right]
+# $$
 # - (c) PPM - Piecewise Parabolic Method 
 # where PPM is the scheme used to advect pollutants in the CMAQ model.
+# $$
+# \\
+# $$
+# *Wasnt able to find a good source using the equation...I littially copy 
+# pasted your code to make this plot work I wanted to rewrite in python but...didnt happen sorry*
 
 
 # %%
@@ -89,19 +106,6 @@ print("Courant number  ", coeff.cr)
 # %% [markdown]
 # 4) Advect the concentration puff anomaly for the following number of time steps
 # and plot (in green) the resulting concentration on the same graph, using
-# $$
-# \\
-# $$
-# - RK3 centered in space
-# $$
-# P_{i,n}^{*}=P_{i, n}+\frac{\Delta t}{3}\left[-u_{0} \frac{P_{i+1, n}-P_{i-1, n}}{2\Delta x}\right]
-# $$
-# $$
-# P_{i,n}^{**}=P_{i, n}+\frac{\Delta t}{2}\left[-u_{0} \frac{P_{i+1, n}^{*}-P_{i-1, n}^{*}}{2\Delta x}\right]
-# $$
-# $$
-# P_{i,n+1}=P_{i, n}+\Delta t\left[-u_{0} \frac{P_{i+1, n}^{**}-P_{i-1, n}^{**}}{2\Delta x}\right]
-# $$
 
 # %%
 
@@ -115,4 +119,4 @@ plot = coeff.plot_functions('RK3')
 
 
 
-# %%
+
