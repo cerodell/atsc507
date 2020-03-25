@@ -33,7 +33,7 @@ from puff_funs import Approximator
 #  The 3 finite-difference schemes you will compare are
 # - (a) FTBS - Forward in time, Backward in space;
 # $$
-# P_{j, n+1}=P_{j, n} -u_{0} \frac{P_{j,n}-P_{j-1,n}}{2 \Delta x} \Delta t
+# P_{j, n+1}=P_{j, n} -u_{0} \frac{P_{j,n}-P_{j-1,n}}{ \Delta x} \Delta t
 # $$
 # - (b) RK3 - Runga-Kutte 3rd order, and
 # - (c) PPM - Piecewise Parabolic Method 
@@ -42,20 +42,13 @@ from puff_funs import Approximator
 
 # %%
 
-# # Create the grid and initial conditions
-# gridx = 1000             # number of grid points in x-direction
-# dx    = 100.             # horizontal grid spacing (m)
-# dt    = 10.              # time increment (s)
-# u     = 5.               # horizontal wind speed (m/s)
-# xx    = np.arange(0,gridx,1)
-
+## Create the grid and initial conditions
 initialVals={'gridx': 1000 , 'dx':100.  ,'dt':10. , 'u0': 5. , \
      'xx': np.arange(0,1000,1) , 'cmax': 10. }
 
+## Call on approximator class
+coeff = Approximator(initialVals)
 
-nsteps = (initialVals['gridx'] - 300) / (initialVals['u0'] * initialVals['dt'] / initialVals['dx'])
-nsteps = np.arange(0,nsteps)
-initialVals.update({'nsteps': nsteps})
 
 
 # %% [markdown]
@@ -68,72 +61,57 @@ initialVals.update({'nsteps': nsteps})
 # C=\frac{u \Delta t}{\Delta x} \leq C_{\max }
 # $$
 # %%
-cr = initialVals['u0'] * initialVals['dt']/initialVals['dx']
-print("Courant number  ", cr)
+print("Courant number  ", coeff.cr)
 
 # %% [markdown]
 # - 2) (a) Create initial concentration anomaly distribution in the x-direction
-# %%
-
-conc = np.zeros(initialVals['gridx'])                          # initial concentration of background is zero
-conc[100:151] = np.linspace(0.,initialVals['cmax'],51)         # insert left side of triangle
-conc[150:201] = np.linspace(initialVals['cmax'], 0.,51)        # insert right side of triangle
-conc[20:41] = np.linspace(0., -0.5*initialVals['cmax'], 21)    # insert left side of triangle
-conc[40:61] = np.linspace(-0.5*initialVals['cmax'], 0., 21)    # insert right side of triangle
-initialVals.update({'Pj': conc})
-
-# %% [markdown]
+#    *See def__init__() in Approximator class*
+# $$ 
+# \\
+# $$
 # - (b) Plot (using blue colour) the initial concentration distribution on a graph.
 # %%
 
-# fig, ax = plt.subplots(1,1, figsize=(12,4))
-# fig.suptitle('Puff HW7', fontsize= plt_set.title_size, fontweight="bold")
-# ax.plot(initialVals['xx'],initialVals['Pj'], color = 'blue', label = "Initial concentration")
-# ax.set_xlabel('Grid Index (i)', fontsize = plt_set.label)
-# ax.set_ylabel('Quantity', fontsize = plt_set.label)
-# ax.xaxis.grid(color='gray', linestyle='dashed')
-# ax.yaxis.grid(color='gray', linestyle='dashed')
-# ax.set_ylim(-10,15)
-# ax.legend()
-# plt.show()
+## Plot With initial concentration in blue
+# plot = coeff.plot_functions('Initial')
+
 
 # %% [markdown]
 # 3) Also, on the same plot, show (in red) the ideal exact final solution,
 # after the puff anomaly has been advected downwind, as given by
+#    *See def__init__() in Approximator class*
+
 # %%
-cideal = np.zeros(initialVals['gridx'])                             # initial concentration of ideal background is zero
-cideal[800:851] = np.linspace(0., initialVals['cmax'],51)           # insert left side of triangle
-cideal[850:901]  = np.linspace(initialVals['cmax'], 0., 51)         # insert right side of triangle
-cideal[720:741]  = np.linspace(0., -0.5*initialVals['cmax'], 21)    # insert left side of triangle
-cideal[740:761]  = np.linspace(-0.5*initialVals['cmax'], 0., 21)    # insert right side of triangle
-initialVals.update({'cideal': cideal})
+## Plot With final concentration in red
+# plot = coeff.plot_functions('Final')
 
-plot = coeff.plot_functions('Final')
-
-# fig, ax = plt.subplots(1,1, figsize=(12,4))
-# fig.suptitle('Puff HW7', fontsize= plt_set.title_size, fontweight="bold")
-# ax.plot(initialVals['xx'],initialVals['Pj'], color = 'blue', label = "Initial concentration", zorder = 10)
-# ax.plot(initialVals['xx'],initialVals['cideal'], color = 'red', label = "Final Ideal", zorder = 8)
-# ax.set_xlabel('Grid Index (i)', fontsize = plt_set.label)
-# ax.set_ylabel('Quantity', fontsize = plt_set.label)
-# ax.xaxis.grid(color='gray', linestyle='dashed')
-# ax.yaxis.grid(color='gray', linestyle='dashed')
-# ax.set_ylim(-10,15)
-# ax.legend()
-# plt.show()
 
 # %% [markdown]
 # 4) Advect the concentration puff anomaly for the following number of time steps
-# and plot (in green) the resulting concentration on the same graph, using ...
+# and plot (in green) the resulting concentration on the same graph, using
+# $$
+# \\
+# $$
+# - RK3 centered in space
+# $$
+# P_{i,n}^{*}=P_{i, n}+\frac{\Delta t}{3}\left[-u_{0} \frac{P_{i+1, n}-P_{i-1, n}}{2\Delta x}\right]
+# $$
+# $$
+# P_{i,n}^{**}=P_{i, n}+\frac{\Delta t}{2}\left[-u_{0} \frac{P_{i+1, n}^{*}-P_{i-1, n}^{*}}{2\Delta x}\right]
+# $$
+# $$
+# P_{i,n+1}=P_{i, n}+\Delta t\left[-u_{0} \frac{P_{i+1, n}^{**}-P_{i-1, n}^{**}}{2\Delta x}\right]
+# $$
+
 # %%
 
+## Plot RK3 centered in space solution
+plot = coeff.plot_functions('FTBS')
 
+# %%
+
+## Plot RK3 centered in space solution
 plot = coeff.plot_functions('RK3')
-
-
-
-
-
 
 
 
