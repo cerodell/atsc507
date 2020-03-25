@@ -35,6 +35,9 @@ from puff_funs import Approximator
 # $$
 # P_{j, n+1}=P_{j, n} -u_{0} \frac{P_{j,n}-P_{j-1,n}}{ \Delta x} \Delta t
 # $$
+# $$
+# \\
+# $$
 # - (b) RK3 - - RK3 centered in space
 # $$
 # \\
@@ -48,14 +51,18 @@ from puff_funs import Approximator
 # $$
 # P_{i,n+1}=P_{i, n}+\Delta t\left[-u_{0} \frac{P_{i+1, n}^{**}-P_{i-1, n}^{**}}{2\Delta x}\right]
 # $$
+# $$
+# \\
+# $$
 # - (c) PPM - Piecewise Parabolic Method 
 # where PPM is the scheme used to advect pollutants in the CMAQ model.
 # $$
 # \\
 # $$
-# *Wasnt able to find a good source using the equation...I littially copy 
-# pasted your code to make this plot work I wanted to rewrite in python but...didnt happen sorry*
-
+# *Wasnt able to find a good source defining the PPM method equation
+# ...I copy-pasted your code to make the PPM plot work I wanted
+#  to rewrite in python but...didn't happen sorry The R scripted 
+# I used is in the folder I sent you*
 
 # %%
 
@@ -106,17 +113,33 @@ print("Courant number  ", coeff.cr)
 # %% [markdown]
 # 4) Advect the concentration puff anomaly for the following number of time steps
 # and plot (in green) the resulting concentration on the same graph, using
+# $$
+# \\
+# $$
+# ### Plot Forward in time backward in space
 
 # %%
 
-## Plot RK3 centered in space solution
+## Plot Forward in time backward in space
 plot = coeff.plot_functions('FTBS')
 
+
+# %% [markdown]
+# ### Plot RK3 centered in space solution
 # %%
 
 ## Plot RK3 centered in space solution
 plot = coeff.plot_functions('RK3')
 
 
+# %% [markdown]
+# ### Plot PPM centered in space solution
+# *PNG made using hw7_ppm.R*
+# <img src="files/PPM.png">
 
 
+
+
+
+
+# %%
