@@ -26,20 +26,21 @@ class Approximator:
         cr = self.u0 * self.dt / self.dx
         self.cr = cr
 
-        ## Create initial concentration anomaly distribution in the x-direction
-        conc = np.zeros(self.gridx)                                 # initial concentration of background is zero
-        conc[100:151] = np.linspace(0.,self.cmax,51)                # insert left side of triangle
-        conc[150:201] = np.linspace(self.cmax, 0.,51)               # insert right side of triangle
-        conc[20:41] = np.linspace(0., -0.5 * self.cmax, 21)         # insert left side of triangle
-        conc[40:61] = np.linspace(-0.5 * self.cmax, 0., 21)         # insert right side of triangle
+        ## Create initial concentration anomaly
+        #  distribution in the x-direction
+        conc = np.zeros(self.gridx)                
+        conc[100:151] = np.linspace(0.,self.cmax,51)                
+        conc[150:201] = np.linspace(self.cmax, 0.,51)               
+        conc[20:41] = np.linspace(0., -0.5 * self.cmax, 21)        
+        conc[40:61] = np.linspace(-0.5 * self.cmax, 0., 21)         
         self.Pj = np.array(conc)
 
         ## Define the ideal exact final solution
-        cideal = np.zeros(self.gridx)                               # initial concentration of ideal background is zero
-        cideal[800:851] = np.linspace(0., self.cmax,51)             # insert left side of triangle
-        cideal[850:901]  = np.linspace(self.cmax, 0., 51)           # insert right side of triangle
-        cideal[720:741]  = np.linspace(0., -0.5 * self.cmax, 21)    # insert left side of triangle
-        cideal[740:761]  = np.linspace(-0.5 * self.cmax, 0., 21)    # insert right side of triangle
+        cideal = np.zeros(self.gridx)                              
+        cideal[800:851] = np.linspace(0., self.cmax,51)         
+        cideal[850:901]  = np.linspace(self.cmax, 0., 51)         
+        cideal[720:741]  = np.linspace(0., -0.5 * self.cmax, 21)    
+        cideal[740:761]  = np.linspace(-0.5 * self.cmax, 0., 21)   
         self.cideal = np.array(cideal)
 
     #############################################
@@ -127,13 +128,8 @@ class Approximator:
     def plot_functions(self, method):
         if method == 'Initial':
             fig, ax = plt.subplots(1,1, figsize=(12,4))
-            fig.suptitle('Puff HW7', fontsize= plt_set.title_size, fontweight="bold")
+            fig.suptitle('HW7 Initial concentration', fontsize= plt_set.title_size, fontweight="bold")
             ax.plot(self.xx, self.Pj, color = 'blue', label = "Initial concentration", zorder = 9)
-            # ax.plot(self.xx,self.cideal, color = 'red', label = "Final Ideal", zorder = 8)
-            # Prk3 = self.rk3()
-            # ax.plot(self.xx,Prk3.T[:,-1], color = 'green', label = "RK3", zorder = 10)
-            # ax.plot(initialVals['xx'],pnew, color = 'green', label = "RK3", zorder = 10)
-
             ax.set_xlabel('Grid Index (i)', fontsize = plt_set.label)
             ax.set_ylabel('Quantity', fontsize = plt_set.label)
             ax.xaxis.grid(color='gray', linestyle='dashed')
@@ -144,13 +140,9 @@ class Approximator:
 
         elif method == 'Final':
             fig, ax = plt.subplots(1,1, figsize=(12,4))
-            fig.suptitle('Puff HW7', fontsize= plt_set.title_size, fontweight="bold")
+            fig.suptitle('HW7 Final Ideal', fontsize= plt_set.title_size, fontweight="bold")
             ax.plot(self.xx, self.Pj, color = 'blue', label = "Initial concentration", zorder = 9)
             ax.plot(self.xx,self.cideal, color = 'red', label = "Final Ideal", zorder = 8)
-            # Prk3 = self.rk3()
-            # ax.plot(self.xx,Prk3.T[:,-1], color = 'green', label = "RK3", zorder = 10)
-            # ax.plot(initialVals['xx'],pnew, color = 'green', label = "RK3", zorder = 10)
-
             ax.set_xlabel('Grid Index (i)', fontsize = plt_set.label)
             ax.set_ylabel('Quantity', fontsize = plt_set.label)
             ax.xaxis.grid(color='gray', linestyle='dashed')

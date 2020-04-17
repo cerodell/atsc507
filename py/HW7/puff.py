@@ -61,8 +61,8 @@ from puff_funs import Approximator
 # $$
 # *Wasnt able to find a good source defining the PPM method equation
 # ...I copy-pasted your code to make the PPM plot work I wanted
-#  to rewrite in python but...didn't happen sorry The R scripted 
-# I used is in the folder I sent you*
+#  to rewrite in python but...didn't happen, sorry...The R scripted (for PPM)
+# and approximator class (for RK3 and FTBS) are at the bottom of this pdf*
 
 # %%
 
@@ -97,7 +97,7 @@ print("Courant number  ", coeff.cr)
 # %%
 
 ## Plot With initial concentration in blue
-# plot = coeff.plot_functions('Initial')
+plot = coeff.plot_functions('Initial')
 
 
 # %% [markdown]
@@ -107,7 +107,7 @@ print("Courant number  ", coeff.cr)
 
 # %%
 ## Plot With final concentration in red
-# plot = coeff.plot_functions('Final')
+plot = coeff.plot_functions('Final')
 
 
 # %% [markdown]
@@ -142,4 +142,11 @@ plot = coeff.plot_functions('RK3')
 
 
 
-# %%
+# %% [markdown]
+# - 7) Discuss and compare the results of these three advection schemes.
+# Of the three schemes, the PPM performed best. The PPM scheme was 
+# meant to handle a sharp curve/gradient associated with pollutant 
+# advection. The forward in time centered in space performed the
+#  worst and had significant damping or reduction in the concentration 
+#  levels. RK3 faired well but showed signs of instability around 
+#  the sharp curves/gradients. 
