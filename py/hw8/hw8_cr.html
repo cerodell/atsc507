@@ -13258,7 +13258,7 @@ c1 + c3*h**2/24 + c5*h**4/1920 + c7*h**6/322560
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[2]:</div>
+<div class="prompt input_prompt">In&nbsp;[1]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-python"><pre><span></span><span class="kn">from</span> <span class="nn">devito</span> <span class="kn">import</span> <span class="n">Grid</span><span class="p">,</span> <span class="n">Function</span><span class="p">,</span> <span class="n">TimeFunction</span><span class="p">,</span> <span class="n">Operator</span><span class="p">,</span> <span class="n">configuration</span><span class="p">,</span> <span class="n">Eq</span><span class="p">,</span> <span class="n">solve</span>
@@ -13271,26 +13271,26 @@ c1 + c3*h**2/24 + c5*h**4/1920 + c7*h**6/322560
 <span class="c1"># Silence the runtime performance logging</span>
 <span class="n">configuration</span><span class="p">[</span><span class="s1">&#39;log-level&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;ERROR&#39;</span>
 
-<span class="c1"># Now with Devito we will turn `p` into `TimeFunction` object </span>
+<span class="c1"># Now with Devito we will turn `T` into `TimeFunction` object </span>
 <span class="c1"># to make all the buffer switching implicit</span>
 <span class="n">grid</span> <span class="o">=</span> <span class="n">Grid</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">,</span> <span class="n">nz</span><span class="p">))</span>
-<span class="n">p</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span> <span class="n">space_order</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">pd</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;pd&#39;</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span> <span class="n">space_order</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="n">p</span><span class="o">.</span><span class="n">data</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">0.</span>
-<span class="n">pd</span><span class="o">.</span><span class="n">data</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">0.</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;T&#39;</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span> <span class="n">space_order</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">Td</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Td&#39;</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">,</span> <span class="n">space_order</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">T</span><span class="o">.</span><span class="n">data</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">0.</span>
+<span class="n">Td</span><span class="o">.</span><span class="n">data</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">0.</span>
 
-<span class="c1"># Initialise the source term `b`</span>
-<span class="n">b</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;b&#39;</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">)</span>
-<span class="n">b</span><span class="o">.</span><span class="n">data</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">0.</span>
-<span class="n">b</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">nx</span> <span class="o">/</span> <span class="mi">4</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ny</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)]</span>  <span class="o">=</span> <span class="mi">100</span>
-<span class="n">b</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">nx</span> <span class="o">/</span> <span class="mi">4</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">ny</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">100</span>
+<span class="c1"># Initialise the source term `S`</span>
+<span class="n">S</span> <span class="o">=</span> <span class="n">Function</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="n">grid</span><span class="o">=</span><span class="n">grid</span><span class="p">)</span>
+<span class="n">S</span><span class="o">.</span><span class="n">data</span><span class="p">[:]</span> <span class="o">=</span> <span class="mf">0.</span>
+<span class="n">S</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">nx</span> <span class="o">/</span> <span class="mi">4</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">ny</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)]</span>  <span class="o">=</span> <span class="mi">100</span>
+<span class="n">S</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">nx</span> <span class="o">/</span> <span class="mi">4</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">ny</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">100</span>
 
-<span class="c1"># Create Laplace equation base on `pd`</span>
-<span class="n">eq</span> <span class="o">=</span> <span class="n">Eq</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">laplace</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">subdomain</span><span class="o">=</span><span class="n">grid</span><span class="o">.</span><span class="n">interior</span><span class="p">)</span>
+<span class="c1"># Create Laplace equation base on `Td`</span>
+<span class="n">eq</span> <span class="o">=</span> <span class="n">Eq</span><span class="p">(</span><span class="n">Td</span><span class="o">.</span><span class="n">laplace</span><span class="p">,</span> <span class="n">S</span><span class="p">,</span> <span class="n">subdomain</span><span class="o">=</span><span class="n">grid</span><span class="o">.</span><span class="n">interior</span><span class="p">)</span>
 <span class="c1"># Let SymPy solve for the central stencil point</span>
-<span class="n">stencil</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">eq</span><span class="p">,</span> <span class="n">pd</span><span class="p">)</span>
-<span class="c1"># Now we let our stencil populate our second buffer `p`</span>
-<span class="n">eq_stencil</span> <span class="o">=</span> <span class="n">Eq</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">stencil</span><span class="p">)</span>
+<span class="n">stencil</span> <span class="o">=</span> <span class="n">solve</span><span class="p">(</span><span class="n">eq</span><span class="p">,</span> <span class="n">Td</span><span class="p">)</span>
+<span class="c1"># Now we let our stencil populate our second buffer `T`</span>
+<span class="n">eq_stencil</span> <span class="o">=</span> <span class="n">Eq</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">stencil</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">eq_stencil</span><span class="p">)</span>
 </pre></div>
 
@@ -13308,7 +13308,7 @@ c1 + c3*h**2/24 + c5*h**4/1920 + c7*h**6/322560
 
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Eq(p(x, y, z), -0.5*(h_x**2*h_y**2*h_z**2*b(x, y, z) - h_x**2*h_y**2*pd(x, y, z - h_z) - h_x**2*h_y**2*pd(x, y, z + h_z) - h_x**2*h_z**2*pd(x, y - h_y, z) - h_x**2*h_z**2*pd(x, y + h_y, z) - h_y**2*h_z**2*pd(x - h_x, y, z) - h_y**2*h_z**2*pd(x + h_x, y, z))/(h_x**2*h_y**2 + h_x**2*h_z**2 + h_y**2*h_z**2))
+<pre>Eq(T(x, y, z), -0.5*(h_x**2*h_y**2*h_z**2*S(x, y, z) - h_x**2*h_y**2*Td(x, y, z - h_z) - h_x**2*h_y**2*Td(x, y, z + h_z) - h_x**2*h_z**2*Td(x, y - h_y, z) - h_x**2*h_z**2*Td(x, y + h_y, z) - h_y**2*h_z**2*Td(x - h_x, y, z) - h_y**2*h_z**2*Td(x + h_x, y, z))/(h_x**2*h_y**2 + h_x**2*h_z**2 + h_y**2*h_z**2))
 </pre>
 </div>
 </div>
@@ -13321,12 +13321,24 @@ c1 + c3*h**2/24 + c5*h**4/1920 + c7*h**6/322560
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Q2-answer">Q2 answer<a class="anchor-link" href="#Q2-answer">&#182;</a></h3><p>Stencil of the 2nd-order centered difference form for the 3-D Poisson’s equation using the finite-volume method:</p>
-<p>$$
- \displaystyle p{\left(x,y,z \right)} = - \frac{0.5 \left(h_{x}^{2} h_{y}^{2} h_{z}^{2} b{\left(x,y,z \right)} - h_{x}^{2} h_{y}^{2} \operatorname{pd}{\left(x,y,z - h_{z} \right)} - h_{x}^{2} h_{y}^{2} \operatorname{pd}{\left(x,y,z + h_{z} \right)} - h_{x}^{2} h_{z}^{2} \operatorname{pd}{\left(x,y - h_{y},z \right)} - h_{x}^{2} h_{z}^{2} \operatorname{pd}{\left(x,y + h_{y},z \right)} - h_{y}^{2} h_{z}^{2} \operatorname{pd}{\left(x - h_{x},y,z \right)} - h_{y}^{2} h_{z}^{2} \operatorname{pd}{\left(x + h_{x},y,z \right)}\right)}{h_{x}^{2} h_{y}^{2} + h_{x}^{2} h_{z}^{2} + h_{y}^{2} h_{z}^{2}}
- $$</p>
+$$
+\displaystyle T{\left(x,y,z \right)} = - \frac{0.5 \left(h_{x}^{2} h_{y}^{2} h_{z}^{2} S{\left(x,y,z \right)} - h_{x}^{2} h_{y}^{2} \operatorname{Td}{\left(x,y,z - h_{z} \right)} - h_{x}^{2} h_{y}^{2} \operatorname{Td}{\left(x,y,z + h_{z} \right)} - h_{x}^{2} h_{z}^{2} \operatorname{Td}{\left(x,y - h_{y},z \right)} - h_{x}^{2} h_{z}^{2} \operatorname{Td}{\left(x,y + h_{y},z \right)} - h_{y}^{2} h_{z}^{2} \operatorname{Td}{\left(x - h_{x},y,z \right)} - h_{y}^{2} h_{z}^{2} \operatorname{Td}{\left(x + h_{x},y,z \right)}\right)}{h_{x}^{2} h_{y}^{2} + h_{x}^{2} h_{z}^{2} + h_{y}^{2} h_{z}^{2}}
+$$
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+<div class="prompt input_prompt">In&nbsp;[&nbsp;]:</div>
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-python"><pre><span></span>
+</pre></div>
 
+    </div>
 </div>
 </div>
+
 </div>
     </div>
   </div>

@@ -136,6 +136,7 @@ print(simplify(dfdxcheck2)) # so the appropriate cancellation of terms involving
 # %%
 from devito import Grid, Function, TimeFunction, Operator, configuration, Eq, solve
 
+
 nx = 50
 ny = 50
 nz = 50
@@ -144,32 +145,32 @@ nt  = 100
 # Silence the runtime performance logging
 configuration['log-level'] = 'ERROR'
 
-# Now with Devito we will turn `p` into `TimeFunction` object 
+# Now with Devito we will turn `T` into `TimeFunction` object 
 # to make all the buffer switching implicit
 grid = Grid(shape=(nx, ny, nz))
-p = Function(name='p', grid=grid, space_order=2)
-pd = Function(name='pd', grid=grid, space_order=2)
-p.data[:] = 0.
-pd.data[:] = 0.
+T = Function(name='T', grid=grid, space_order=2)
+Td = Function(name='Td', grid=grid, space_order=2)
+T.data[:] = 0.
+Td.data[:] = 0.
 
-# Initialise the source term `b`
-b = Function(name='b', grid=grid)
-b.data[:] = 0.
-b.data[int(nx / 4), int(ny / 4)]  = 100
-b.data[int(3 * nx / 4), int(3 * ny / 4)] = -100
+# Initialise the source term `S`
+S = Function(name='S', grid=grid)
+S.data[:] = 0.
+S.data[int(nx / 4), int(ny / 4)]  = 100
+S.data[int(3 * nx / 4), int(3 * ny / 4)] = -100
 
 # Create Laplace equation base on `pd`
-eq = Eq(pd.laplace, b, subdomain=grid.interior)
+eq = Eq(Td.laplace, S, subdomain=grid.interior)
 # Let SymPy solve for the central stencil point
-stencil = solve(eq, pd)
+stencil = solve(eq, Td)
 # Now we let our stencil populate our second buffer `p`
-eq_stencil = Eq(p, stencil)
+eq_stencil = Eq(T, stencil)
 print(eq_stencil)
 # %% [markdown]
 #### Q2 answer
 # Stencil of the 2nd-order centered difference form for the 3-D Poisson’s equation using the finite-volume method: 
 # 
 # $$
-# \displaystyle p{\left(x,y,z \right)} = - \frac{0.5 \left(h_{x}^{2} h_{y}^{2} h_{z}^{2} b{\left(x,y,z \right)} - h_{x}^{2} h_{y}^{2} \operatorname{pd}{\left(x,y,z - h_{z} \right)} - h_{x}^{2} h_{y}^{2} \operatorname{pd}{\left(x,y,z + h_{z} \right)} - h_{x}^{2} h_{z}^{2} \operatorname{pd}{\left(x,y - h_{y},z \right)} - h_{x}^{2} h_{z}^{2} \operatorname{pd}{\left(x,y + h_{y},z \right)} - h_{y}^{2} h_{z}^{2} \operatorname{pd}{\left(x - h_{x},y,z \right)} - h_{y}^{2} h_{z}^{2} \operatorname{pd}{\left(x + h_{x},y,z \right)}\right)}{h_{x}^{2} h_{y}^{2} + h_{x}^{2} h_{z}^{2} + h_{y}^{2} h_{z}^{2}}
+# \displaystyle T{\left(x,y,z \right)} = - \frac{0.5 \left(h_{x}^{2} h_{y}^{2} h_{z}^{2} S{\left(x,y,z \right)} - h_{x}^{2} h_{y}^{2} \operatorname{Td}{\left(x,y,z - h_{z} \right)} - h_{x}^{2} h_{y}^{2} \operatorname{Td}{\left(x,y,z + h_{z} \right)} - h_{x}^{2} h_{z}^{2} \operatorname{Td}{\left(x,y - h_{y},z \right)} - h_{x}^{2} h_{z}^{2} \operatorname{Td}{\left(x,y + h_{y},z \right)} - h_{y}^{2} h_{z}^{2} \operatorname{Td}{\left(x - h_{x},y,z \right)} - h_{y}^{2} h_{z}^{2} \operatorname{Td}{\left(x + h_{x},y,z \right)}\right)}{h_{x}^{2} h_{y}^{2} + h_{x}^{2} h_{z}^{2} + h_{y}^{2} h_{z}^{2}}
 # $$
 # %%
