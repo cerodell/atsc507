@@ -116,7 +116,7 @@ print(simplify(dfdxcheck2)) # so the appropriate cancellation of terms involving
 # \displaystyle \frac{c_{1} h + \frac{c_{3} h^{3}}{24} + \frac{c_{5} h^{5}}{1920} + \frac{c_{7} h^{7}}{322560}}{h}
 # $$
 # %% [markdown]
-#### Question 2
+# ### Question 2
 # $$
 # \begin{array}{l}\text {(/15) Derive the 2nd-order centred difference form for the 3-dimensional Poisson's equation } \\ \text { using the finite-volume method: }\end{array}
 # $$

@@ -28,7 +28,7 @@ d   =  {"A" :np.array([[5.2, 5.3, 5.4, 5.3], [5.3, 5.4, 5.5, 5.4], [5.4, 5.5, 5.
 # %%
 
 ME = np.mean(d['F']- d['V'])
-print("Mean Forecast Error:  ", round(ME,4))
+print(f"Mean Forecast Error: {round(ME,4)} kPa")
 
 # %% [markdown]
 # b. mean persistence error <br />
@@ -38,7 +38,7 @@ print("Mean Forecast Error:  ", round(ME,4))
 # %%
 
 MPE = np.mean(d['A']- d['V'])
-print("Mean Persistence Error:  ", round(MPE,4))
+print(f"Mean Persistence Error: {round(MPE,4)} kPa")
 
 
 # %% [markdown]
@@ -50,7 +50,7 @@ print("Mean Persistence Error:  ", round(MPE,4))
 # %%
 
 MAE = np.mean(abs(d['F']- d['V']))
-print("Mean Absolute Forecast Error:  ", round(MAE,4))
+print(f"Mean Absolute Forecast Error: {round(MAE,4)} kPa")
 
 
 # %% [markdown]
@@ -61,7 +61,7 @@ print("Mean Absolute Forecast Error:  ", round(MAE,4))
 # %% 
 
 MSE = np.mean((d['F']- d['V'])**2)
-print("Mean Squared Forecast Error:  ", round(MSE,4))
+print(f"Mean Squared Forecast Error:{round(MSE,4)} kPa")
 
 
 # %% [markdown]
@@ -72,7 +72,7 @@ print("Mean Squared Forecast Error:  ", round(MSE,4))
 # %% 
 
 MSEC = np.mean((d['C']- d['V'])**2)
-print("Mean Squared Climatology Error:  ", round(MSEC,4))
+print(f"Mean Squared Climatology Error: {round(MSEC,4)} kPa")
 
 # %% [markdown]
 # f. mean squared forecast error skill score <br />
@@ -82,7 +82,7 @@ print("Mean Squared Climatology Error:  ", round(MSEC,4))
 # %%
 
 MSESS = 1 - (MSE/ MSEC)
-print("Mean Squared Forecast Error Skill Score:  ", round(MSESS,4))
+print(f"Mean Squared Forecast Error Skill Score: {round(MSESS,4)} kPa ")
 
 # %% [markdown]
 # g. RMS forecast error <br />
@@ -405,23 +405,33 @@ print(f"Brier skill score {BSS}")
 # j = round(p_k/ \Delta p, 0)
 # $$
 # %%
-dp = 0.2
 
-j = np.rint(pk/dp)
+dp = 0.2
+pk_dp = pk/dp
+
+def rounder(x):
+    x = x + 0.01 ### This is required....took so long to figure that out
+    if (x-int(x) >= 0.5):
+        j = np.ceil(x)
+        return int(j)     
+    else:
+        j = np.floor(x)
+        return int(j)
+j = []
+for value in pk_dp:
+        ji = rounder(value)
+        j.append(ji)
+
+j = np.array(j)
 J = np.arange(np.min(j), np.max(j)+1,1)
 print(f"Number of bins {len(J)}")
 pj = np.linspace(0, 1, len(J), endpoint=True)
 
-oj = pk[ok==1]
 
-noj_0, oj_0 = pk[np.where(pk<=0.+(dp/2))], oj[np.where(oj<=0.+(dp/2))]
-noj_1, oj_1 = pk[(np.where((pk >= 0.25-(dp/2)) & (pk <= 0.25+(dp/2))))], oj[(np.where((oj >= 0.25-(dp/2)) & (oj <= 0.25+(dp/2))))]
-noj_2, oj_2 = pk[(np.where((pk >= 0.5-(dp/2)) & (pk <= 0.5+(dp/2))))], oj[(np.where((oj >= 0.5-(dp/2)) & (oj <= 0.5+(dp/2))))]
-noj_3, oj_3 = pk[(np.where((pk >= 0.75-(dp/2)) & (pk <= 0.75+(dp/2))))], oj[(np.where((oj >= 0.75-(dp/2)) & (oj <= 0.75+(dp/2))))]
-noj_4, oj_4 = pk[np.where(pk>=1.-(dp/2))], oj[np.where(oj>=1.-(dp/2))]
-
-nj = np.array([len(noj_0),len(noj_1), len(noj_2), len(noj_3), len(noj_4)])
-noj = np.array([len(oj_0),len(oj_1), len(oj_2), len(oj_3), len(oj_4)])
+oj = j[ok==1]
+unique_j, nj = np.unique(j, return_counts=True)
+unique_oj, n_oj = np.unique(oj, return_counts=True)
+noj = np.append(0, n_oj)
 
 
 # %%
@@ -432,9 +442,9 @@ ax.set_xlabel('$p_j$', fontsize = plt_set.label)
 ax.xaxis.grid(color='gray', linestyle='dashed')
 ax.yaxis.grid(color='gray', linestyle='dashed')
 ax.plot(pj, (noj/nj))
+ax.scatter(pj, (noj/nj))
 x = np.linspace(0,1,100)
-ax.plot(x, x)
-
+ax.plot(x, x, "--r")
 
 plt.show()
 
@@ -445,12 +455,12 @@ plt.show()
 # B S S_{\text {reliability}}=\frac{\sum_{j=0}^{J}\left[\left(n_{j} \cdot p_{j}\right)-n_{o j}\right]^{2}}{\left(\sum_{k=1}^{N} o_{k}\right) \cdot\left(N-\sum_{k=1}^{N} o_{k}\right)}
 # $$
 # %%
-k1 = np.sum((nj * pj) - noj)**2
+k1 = np.sum(((nj * pj) - noj)**2)
 k2 = (np.sum(ok)) * (N - np.sum(ok))
 
 BSSR = k1/k2
 
-print(f"Reliability Brier skill score {round(BSSR,4)}")
+print(f"Reliability Brier skill score {round(BSSR,8)}")
 
 # %%
 # %% [markdown]
@@ -466,7 +476,105 @@ print(f"Reliability Brier skill score {round(BSSR,4)}")
 # $$
 # \begin{array}{c|c|c|c|c|cc|c|c|c|c|c}\text { Day } & o & \text{Ex a:  } p(\%) & p(\%) & p(\%) & p(\%) & \text { Day } & o & \text{Ex a:  } p(\%) & p(\%) & p(\%) & p(\%) \\ \hline 1 & 1 & 50 & 10 & 100 & 0 & 16 & 0 & 60 & 30 & 20 & 40 \\ 2 & 0 & 20 & 0 & 0 & 10 & 17 & 1 & 70 & 60 & 60 & 50 \\ 3 & 1 & 20 & 30 & 90 & 20 & 18 & 1 & 90 & 70 & 60 & 60 \\ \hline 4 & 1 & 60 & 40 & 90 & 30 & 19 & 1 & 80 & 80 & 60 & 70 \\ \hline 5 & 0 & 50 & 30 & 0 & 40 & 20 & 0 & 70 & 70 & 30 & 80 \\ \hline 6 & 0 & 20 & 40 & 0 & 50 & 21 & 0 & 10 & 80 & 30 & 90 \\ \hline 7 & 0 & 30 & 50 & 10 & 60 & 22 & 0 & 10 & 90 & 30 & 100 \\ \hline 8 & 1 & 90 & 80 & 80 & 70 & 23 & 0 & 0 & 0 & 40 & 10 \\ \hline 9 & 0 & 40 & 70 & 10 & 80 & 24 & 0 & 0 & 10 & 40 & 20 \\ \hline 10 & 1 & 30 & 100 & 80 & 90 & 25 & 1 & 80 & 40 & 50 & 30 \\ \hline 11 & 1 & 100 & 100 & 70 & 100 & 26 & 0 & 0 & 30 & 40 & 40 \\ \hline 12 & 0 & 10 & 0 & 10 & 0 & 27 & 0 & 0 & 40 & 0 & 50 \\ \hline 13 & 0 & 0 & 0 & 20 & 10 & 28 & 1 & 100 & 70 & 50 & 60 \\ \hline 14 & 0 & 10 & 10 & 20 & 20 & 29 & 0 & 10 & 60 & 0 & 70 \\ \hline 15 & 1 & 80 & 40 & 70 & 30 & 30 & 1 & 90 & 10 & 50 & 0\end{array}
 # $$
+# %% [markdown]
+# $$
+# \begin{array}{ll}a=\text { count of days with hits } & \left(o_{j}, f_{j}\right)=(1,1) \\ b=\text { count of days with false alarms }\left(o_{j} f_{j}\right)=(0,1) & . \\ c=\text { count of days with misses }\left(o_{j}, f_{j}\right)=(1,0) \\ d=\text { count of days: correct rejection }\left(o_{j}, f_{j}\right)=(0,0)\end{array}
+# $$
+# $$
+# \\
+# $$
 # %%
+import pandas as pd
+table = {"Days": np.arange(1,31,1),
+        "o": np.array([1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1]),
+        "p": np.array([50, 20, 20, 60, 50, 20, 30, 90, 40, 30, 100, 10, 0, 10, 80, 60, 70, 90, 80, 70, 10, 10, 0, 0, 80, 0, 0, 100, 10, 90])}
+prect = np.arange(0,110,10)
+
+zero = np.zeros_like(table['p'])
+
+table['a'], table['b'], table['c'], table['d'] = [], [], [], []
+for i in range(len(prect)):
+
+        flag = np.where(table['p'] < prect[i], zero, 1 )
+        table[prect[i]]= flag
+
+        a = flag[table['o']==1]
+        table['a'].append(np.sum(a))
+
+        b = flag[table['o']==0]
+        table['b'].append(np.sum(b))
+
+        d = np.where(flag != table['o'], zero, -1)
+        dd = (np.sum(d)+ np.sum(a))*-1
+        table['d'].append(dd)
+
+        c = np.where((table['o']==0) & (flag==1), zero, -1)
+        table['c'].append((np.sum(a)+np.sum(c) + dd)*-1)
+
+
+df = pd.DataFrame.from_dict(table, orient='index')
+df = df.transpose()
+print(df)
+# %% [markdown]
+# $$
+# H=\frac{a}{a+c}
+# $$
+# %%
+
+H = df.a / (df.a + df.c)
+H = H[0:11]
+print(f" Hit rate  {H}")
+
+# %% [markdown]
+# $$
+# F=\frac{b}{b+d}
+# $$
+
+# %%
+F = df.b / (df.b + df.d)
+F = F[0:11]
+print(f"False-alarm rate   {F}")
+
+
+# %% [markdown]
+# Plot the result as a ROC diagram
+
+
+# %%
+
+poly = np.polyfit(F,H,5)
+poly_y = np.poly1d(poly)(F)
+
+fig, ax = plt.subplots(1,1, figsize=(10,8))
+fig.suptitle('ROC diagram', fontsize= plt_set.title_size, fontweight="bold")
+ax.set_xlabel('F', fontsize = plt_set.label)
+ax.set_ylabel('H', fontsize = plt_set.label)
+ax.xaxis.grid(color='gray', linestyle='dashed')
+ax.yaxis.grid(color='gray', linestyle='dashed')
+ax.plot(F, poly_y, "r")
+ax.scatter(F, H, color = 'k')
+x = np.linspace(0,1,100)
+ax.plot(x, x, color = "k")
+
+plt.show()
+
+# %% [markdown]
+# Find the area under the ROC curve and find the ROC skill score.
+# $$
+# \\
+# $$
+# $$
+# S S_{R O C}=(2 \cdot A)-1
+# $$
+# %%
+from scipy.integrate import simps
+
+# Compute the area using the composite trapezoidal rule.
+area = np.trapz(H[::-1], F[::-1])
+area = round(area,3)
+SSR = (2*area) - 1
+SSR = round(SSR,3)
+print(f"Area under the ROC curve: {area} and ROC skill score: {SSR}")
 
 
 # %%
